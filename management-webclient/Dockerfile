@@ -10,7 +10,10 @@ WORKDIR /app
 COPY package*.json ./
 
 # install project dependencies
+RUN npm remove node-sass axios
+RUN npm install sass
 RUN npm install
+RUN npm install axios 
 
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
