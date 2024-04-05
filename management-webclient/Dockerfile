@@ -18,10 +18,11 @@ RUN npm install axios
 # copy project files and folders to the current working directory (i.e. 'app' folder)
 COPY . .
 
-# build app for production with minification
-RUN npm run build
-
+# Expose application port
 EXPOSE 3000
+
+# Start the application
+CMD npm start
 
 # http-server by default launches it on port 8080
 CMD [ "http-server", "dist" ]
