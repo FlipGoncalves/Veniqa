@@ -1,0 +1,371 @@
+# Create Management Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-server
+  template:
+    metadata:
+      labels:
+        app: management-server
+    spec:
+      containers:
+      - name: management-server
+        image: registry.deti/gic-asenhoradosaneis/management-server
+        ports:
+          - containerPort: 3000
+        env:
+          - name: NODE_ENV
+            value: "deployment"
+          - name: VENIQA_ENV
+            value: "local"
+          - name: VENIQA_MONGODB_DB
+            value: "veniqa-prod-db"
+          - name: VENIQA_MONGODB_URL
+            value: "mongodb://mongo:27017/veniqa-prod-db"
+          - name: VENIQA_REDIS_HOST
+            value: "redis://cache"
+          - name: VENIQA_REDIS_PORT
+            value: 6379
+          - name: VENIQA_REDIS_PASSWORD
+            value: "SOME_PASSWORD"
+          - name: VENIQA_REDIS_DB_NUMBER
+            value: 1
+          - name: VENIQA_SESSION_SECRET_KEY
+            value: "SECRET_KEY"
+          - name: VENIQA_CRYPTO_SECRET_KEY
+            value: "CRYPTO_SECRET"
+
+# Create Management WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-webclient
+  template:
+    metadata:
+      labels:
+        app: management-webclient
+    spec:
+      containers:
+      - name: management-webclient
+        image: registry.deti/gic-asenhoradosaneis/management-webclient
+        ports:
+          - containerPort: 5202
+
+# Create Shopping Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-server
+  template:
+    metadata:
+      labels:
+        app: shopping-server
+    spec:
+      containers:
+      - name: shopping-server
+        image: registry.deti/gic-asenhoradosaneis/shopping-server
+        ports:
+          - containerPort: 3000
+        env:
+          - name: NODE_ENV
+            value: "deployment"
+          - name: VENIQA_ENV
+            value: "local"
+          - name: VENIQA_MONGODB_DB
+            value: "veniqa-prod-db"
+          - name: VENIQA_MONGODB_URL
+            value: "mongodb://mongo:27017/veniqa-prod-db"
+          - name: VENIQA_REDIS_HOST
+            value: "redis://cache"
+          - name: VENIQA_REDIS_PORT
+            value: 6379
+          - name: VENIQA_REDIS_PASSWORD
+            value: "SOME_PASSWORD"
+          - name: VENIQA_REDIS_DB_NUMBER
+            value: 0
+          - name: VENIQA_SESSION_SECRET_KEY
+            value: "SECRET_KEY"
+          - name: VENIQA_CRYPTO_SECRET_KEY
+            value: "CRYPTO_SECRET"
+
+# Create Shopping WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-webclient
+  template:
+    metadata:
+      labels:
+        app: shopping-webclient
+    spec:
+      containers:
+      - name: shopping-webclient
+        image: registry.deti/gic-asenhoradosaneis/shopping-webclient
+        ports:
+          - containerPort: 5201
+
+# Create nginx deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - image: registry.deti/gic-asenhoradosaneis/nginx
+          name: nginx
+          ports:
+            - containerPort: 80
+          resources: {}
+      #     volumeMounts:
+      #       - name: nginx-static
+      #         mountPath: /var/www/static
+      restartPolicy: Always
+      # volumes:
+      #   - name: nginx-static
+      #     persistentVolumeClaim:
+      #       claimName: nginx-static-pvc
+
+# Create Redis deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-server
+  template:
+    metadata:
+      labels:
+        app: redis-server
+    spec:
+      containers:
+      - name: redis-server
+        image: "redis:alpine"
+        args: ["--requirepass", "SOME_PASSWORD"]
+        ports:
+          - name: redis-server
+            containerPort: 6379
+        volumeMounts:
+          - name: lv-storage
+            mountPath: /data
+        env:
+            - name: REDIS_REPLICATION_MODE
+              value: "master"
+      volumes:
+        - name: lv-storage
+          persistentVolumeClaim:
+            claimName: redis-pvc
+
+# Create MongoDB deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-server
+  template:
+    metadata:
+      labels:
+        app: mongodb-server
+    spec:
+      containers:
+      - name: mongodb-server
+        image: registry.deti/gic-asenhoradosaneis/mongodb
+        ports:
+          - name: mongodb-server
+            containerPort: 27017
+        volumeMounts:
+          - name: lv-storage
+            mountPath: dbconfig:/data/configdb
+            mountPath: dbdata:/data/db
+      volumes:
+        - name: lv-storage
+          persistentVolumeClaim:
+            claimName: mongodb-pvc
+
+
+
+
+
+
+
+# Create Service for Management Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 4202
+    targetPort: 3000
+  selector:
+    app: management-server
+
+# Create Service for Management WebClient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 4201
+    targetPort: 3000
+  selector:
+    app: management-webclient
+
+# Create Service for Shopping Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 8090
+    targetPort: 8090
+  selector:
+    app: shopping-server
+
+# Create Service for Shopping WebClient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 5201
+    targetPort: 5201
+  selector:
+    app: shopping-webclient
+
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+
+# Create Service for Redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: redis-server
+  type: LoadBalancer
+  ports:
+    - name: redis-port
+      protocol: TCP
+      port: 6379
+      targetPort: 6379
+  loadBalancerIP: 192.168.0.204
+
+# Create Service for Redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: mongodb-server
+  ports:
+    - port: 27000
+      targetPort: 27017
+
+
+
+
+
+
+# Configure Traefik
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gic-asenhoradosaneis-k3s
+  namespace: gic-asenhoradosaneis
+  annotations:
+    spec.ingressClassName: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+spec:
+  rules:
+  - host: gic-asenhoradosaneis.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx
+            port: 
+              number: 80
