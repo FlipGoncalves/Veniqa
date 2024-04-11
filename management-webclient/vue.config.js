@@ -27,6 +27,12 @@ module.exports = {
   devServer: {
     // open: process.platform === 'darwin',
     // host: '0.0.0.0',
+    // disableHostCheck: true,
+    allowedHosts: [
+      'localhost',
+      'gicveniqa',
+      '127.0.0.1',
+    ],
     port: 5202, // CHANGE YOUR PORT HERE!
     // https: false,
     hotOnly: false,

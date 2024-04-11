@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mongodb-pvc
-  namespace: gic-asenhoradosaneis
+  name: management-static-pvc
+  namespace: gic-asenhoradosaneis 
 spec:
   accessModes:
     - ReadWriteOnce
   storageClassName: longhorn
   resources:
     requests:
-      storage: 100mi
+      storage: 50Mi
