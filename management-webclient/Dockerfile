@@ -4,7 +4,7 @@ FROM node:lts-alpine
 RUN npm install -g http-server
 
 # make the 'app' folder the current working directory
-WORKDIR /app
+WORKDIR /management-webclient-app
 
 # copy both 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
@@ -22,7 +22,7 @@ COPY . .
 EXPOSE 3000
 
 # Start the application
-CMD npm start
+CMD [ "npm", "run", "deploy" ]
 
 # http-server by default launches it on port 8080
 CMD [ "http-server", "dist" ]

@@ -20,27 +20,15 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/management-server
         ports:
           - containerPort: 3000
-        # env:
-        #   - name: NODE_ENV
-        #     value: "deployment"
-        #   - name: VENIQA_ENV
-        #     value: "local"
-        #   - name: VENIQA_MONGODB_DB
-        #     value: "veniqa-prod-db"
-        #   - name: VENIQA_MONGODB_URL
-        #     value: "mongodb://mongo:27017/veniqa-prod-db"
-        #   - name: VENIQA_REDIS_HOST
-        #     value: "redis://cache"
-        #   - name: VENIQA_REDIS_PORT
-        #     value: 6379
-        #   - name: VENIQA_REDIS_PASSWORD
-        #     value: "SOME_PASSWORD"
-        #   - name: VENIQA_REDIS_DB_NUMBER
-        #     value: 1
-        #   - name: VENIQA_SESSION_SECRET_KEY
-        #     value: "SECRET_KEY"
-        #   - name: VENIQA_CRYPTO_SECRET_KEY
-        #     value: "CRYPTO_SECRET"
+        volumeMounts:
+          - name: management-server-secret
+            mountPath: "/tmp/management-server-secrets"
+            readOnly: true
+      volumes:
+        - name: management-server-secret
+          secret:
+            secretName: management-server-secret
+
 
 # Create Management WebClient deployment
 ---
@@ -87,27 +75,14 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/shopping-server
         ports:
           - containerPort: 3000
-        # env:
-        #   - name: NODE_ENV
-        #     value: "deployment"
-        #   - name: VENIQA_ENV
-        #     value: "local"
-        #   - name: VENIQA_MONGODB_DB
-        #     value: "veniqa-prod-db"
-        #   - name: VENIQA_MONGODB_URL
-        #     value: "mongodb://mongo:27017/veniqa-prod-db"
-        #   - name: VENIQA_REDIS_HOST
-        #     value: "redis://cache"
-        #   - name: VENIQA_REDIS_PORT
-        #     value: 6379
-        #   - name: VENIQA_REDIS_PASSWORD
-        #     value: "SOME_PASSWORD"
-        #   - name: VENIQA_REDIS_DB_NUMBER
-        #     value: 0
-        #   - name: VENIQA_SESSION_SECRET_KEY
-        #     value: "SECRET_KEY"
-        #   - name: VENIQA_CRYPTO_SECRET_KEY
-        #     value: "CRYPTO_SECRET"
+        volumeMounts:
+          - name: shopping-server-secret
+            mountPath: "/tmp/shopping-server-secrets"
+            readOnly: true
+      volumes:
+        - name: shopping-server-secret
+          secret:
+            secretName: shopping-server-secret
 
 # Create Shopping WebClient deployment
 ---
@@ -157,31 +132,24 @@ spec:
             - containerPort: 80
           resources: {}
           volumeMounts:
-            - name: management-static
-              mountPath: './management-server:/app'
-              mountPath: './management-server/app/node_modules'
-            - name: shopping-static
-              mountPath: './shopping-server:/app'
-              mountPath: './shopping-server/app/node_modules'
-            - name: redis-static
-              mountPath: /data
-            - name: mongodb-static
-              mountPath: dbconfig:/data/configdb
-              mountPath: dbdata:/data/db
+            - name: webclient-static
+              mountPath: './management-webclient:/management-webclient-app'
+              mountPath: './management-webclient-app/node_modules'
+              mountPath: './shopping-webclient:/shopping-webclient-app'
+              mountPath: './shopping-webclient-app/node_modules'
+            - name: server-static
+              mountPath: './management-server:/management-server-app'
+              mountPath: './management-server-app/node_modules'
+              mountPath: './shopping-server:/shopping-server-app'
+              mountPath: './shopping-server-app/node_modules'
       restartPolicy: Always
       volumes:  
-        - name: management-static
+        - name: webclient-static
           persistentVolumeClaim:
-            claimName: management-static-pvc
-        - name: shopping-static
+            claimName: webclient-static-pvc
+        - name: server-static
           persistentVolumeClaim:
-            claimName: shopping-static-pvc
-        - name: redis-static
-          persistentVolumeClaim:
-            claimName: redis-static-pvc
-        - name: mongodb-static
-          persistentVolumeClaim:
-            claimName: mongodb-static-pvc
+            claimName: server-static-pvc
         
 # Create Redis deployment
 ---
@@ -207,9 +175,20 @@ spec:
         ports:
           - name: redis-server
             containerPort: 6379
-        env:
-            - name: REDIS_REPLICATION_MODE
-              value: "master"
+        volumeMounts:
+          - name: redis-static
+            mountPath: /data
+          - name: redis-secret
+            mountPath: "/tmp/redis-secrets"
+            readOnly: true
+      restartPolicy: Always
+      volumes:  
+        - name: redis-static
+          persistentVolumeClaim:
+            claimName: redis-static-pvc
+        - name: redis-secret
+          secret:
+            secretName: redis-secret
 
 # Create MongoDB deployment
 ---
@@ -234,7 +213,15 @@ spec:
         ports:
           - name: mongodb-server
             containerPort: 27017
-
+        volumeMounts:
+          - name: mongodb-static
+            mountPath: dbconfig:/data/configdb
+            mountPath: dbdata:/data/db
+      restartPolicy: Always
+      volumes:  
+        - name: mongodb-static
+          persistentVolumeClaim:
+            claimName: mongodb-static-pvc
 
 
 # Create Service for Management Server
@@ -288,7 +275,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 5201
+  - port: 8080
     targetPort: 5201
   selector:
     app: shopping-webclient
