@@ -1,2 +1,4 @@
 FROM nginx
+# RUN mkdir /shopping-webclient-app
+# COPY --from=0 /shopping-webclient-app/dist /shopping-webclient-app
 COPY nginx.conf /etc/nginx/nginx.conf

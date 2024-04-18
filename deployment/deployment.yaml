@@ -104,8 +104,13 @@ spec:
       containers:
       - name: shopping-webclient
         image: registry.deti/gic-asenhoradosaneis/shopping-webclient
+        # resources:
+        #   requests:
+        #     cpu: 100m
+        #     memory: 300Mi
+        # imagePullPolicy: Always
         ports:
-          - containerPort: 5201
+          - containerPort: 8080
 
 # Create nginx deployment
 ---
@@ -133,15 +138,15 @@ spec:
           resources: {}
           volumeMounts:
             - name: webclient-static
-              mountPath: './management-webclient:/management-webclient-app'
-              mountPath: './management-webclient-app/node_modules'
-              mountPath: './shopping-webclient:/shopping-webclient-app'
-              mountPath: './shopping-webclient-app/node_modules'
+              mountPath: '/management-webclient:/management-webclient-app'
+              mountPath: '/management-webclient-app/node_modules'
+              mountPath: '/shopping-webclient:/shopping-webclient-app'
+              mountPath: '/shopping-webclient-app/node_modules'
             - name: server-static
-              mountPath: './management-server:/management-server-app'
-              mountPath: './management-server-app/node_modules'
-              mountPath: './shopping-server:/shopping-server-app'
-              mountPath: './shopping-server-app/node_modules'
+              mountPath: '/management-server:/management-server-app'
+              mountPath: '/management-server-app/node_modules'
+              mountPath: '/shopping-server:/shopping-server-app'
+              mountPath: '/shopping-server-app/node_modules'
       restartPolicy: Always
       volumes:  
         - name: webclient-static
@@ -276,7 +281,7 @@ metadata:
 spec:
   ports:
   - port: 8080
-    targetPort: 5201
+    targetPort: 8080
   selector:
     app: shopping-webclient
 
