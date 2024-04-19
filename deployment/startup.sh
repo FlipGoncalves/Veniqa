@@ -13,24 +13,6 @@ done
 echo
 echo
 
-echo -- Management Server --
-cd /vagrant/management-server
-docker build -t registry.deti/gic-asenhoradosaneis/management-server . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/management-server -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
-echo -- Shopping Server --
-cd /vagrant/shopping-server
-docker build -t registry.deti/gic-asenhoradosaneis/shopping-server . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
 echo -- Management WebClient --
 cd /vagrant/management-webclient
 docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . -q
@@ -45,6 +27,24 @@ cd /vagrant/shopping-webclient
 docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+echo -- Management Server --
+cd /vagrant/management-server
+docker build -t registry.deti/gic-asenhoradosaneis/management-server . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/management-server -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+echo -- Shopping Server --
+cd /vagrant/shopping-server
+docker build -t registry.deti/gic-asenhoradosaneis/shopping-server . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
 echo ---- Pushed Successfully ----
 echo
 echo
