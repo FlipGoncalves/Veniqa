@@ -67,6 +67,15 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
+echo -- Wordpress --
+cd /vagrant/www
+docker build -t registry.deti/gic-asenhoradosaneis/wordpress . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/wordpress -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
 cd /vagrant
 kubectl apply -f /vagrant/deployment/webclient-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/server-storage.yaml -n gic-asenhoradosaneis

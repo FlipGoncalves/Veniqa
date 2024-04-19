@@ -286,6 +286,89 @@ spec:
   selector:
     app: shopping-webclient
 
+# WordPress Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+  labels:
+    app: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:latest  # CHANGE THIS
+        ports:
+          - containerPort: 80
+            name: wordpress
+        env:
+          - name: WORDPRESS_DB_HOST
+            value: wordpress-mysql
+          - name: WORDPRESS_DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: mysql-secret
+                key: username
+          - name: WORDPRESS_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mysql-pass
+                key: password
+          - name: WORDPRESS_DB_NAME
+            value: wordpress
+        volumeMounts:
+          - name: wordpress-persistent-storage
+            mountPath: /var/www/html
+      volumes:
+        - name: wordpress-persistent-storage
+          persistentVolumeClaim:
+            claimName: wordpress-pvc
+
+# WordPress Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+  labels:
+    app: wordpress
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: wordpress
+    tier: frontend
+  type: LoadBalancer
+
+# Persistent Volume Claim for WordPress
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wordpress-pvc
+  namespace: gic-asenhoradosaneis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi  # Adjust size as needed
+
 # Create Service for Nginx
 ---
 apiVersion: v1
