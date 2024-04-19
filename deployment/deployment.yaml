@@ -51,7 +51,7 @@ spec:
       - name: management-webclient
         image: registry.deti/gic-asenhoradosaneis/management-webclient
         ports:
-          - containerPort: 5202
+          - containerPort: 8082
 
 # Create Shopping Server deployment
 ---
@@ -104,11 +104,11 @@ spec:
       containers:
       - name: shopping-webclient
         image: registry.deti/gic-asenhoradosaneis/shopping-webclient
-        # resources:
-        #   requests:
-        #     cpu: 100m
-        #     memory: 300Mi
-        # imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 100m
+            memory: 300Mi
+        imagePullPolicy: Always
         ports:
           - containerPort: 8080
 
@@ -138,15 +138,16 @@ spec:
           resources: {}
           volumeMounts:
             - name: webclient-static
-              mountPath: '/management-webclient:/management-webclient-app'
-              mountPath: '/management-webclient-app/node_modules'
-              mountPath: '/shopping-webclient:/shopping-webclient-app'
-              mountPath: '/shopping-webclient-app/node_modules'
+              # mountPath: '/management-webclient:/management-webclient-app'
+              mountPath: '/var/management-webclient-app/static'
+              # mountPath: '/shopping-webclient:/shopping-webclient-app'
+              # mountPath: '/var/shopping-webclient-app/static'
+              mountPath: '/var/static'
             - name: server-static
-              mountPath: '/management-server:/management-server-app'
-              mountPath: '/management-server-app/node_modules'
-              mountPath: '/shopping-server:/shopping-server-app'
-              mountPath: '/shopping-server-app/node_modules'
+              # mountPath: '/management-server:/management-server-app'
+              mountPath: '/var/management-server-app/static'
+              # mountPath: '/shopping-server:/shopping-server-app'
+              mountPath: '/var/shopping-server-app/static'
       restartPolicy: Always
       volumes:  
         - name: webclient-static
@@ -252,8 +253,8 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 4201
-    targetPort: 3000
+  - port: 8082
+    targetPort: 8082
   selector:
     app: management-webclient
 
@@ -360,3 +361,10 @@ spec:
             name: nginx
             port: 
               number: 80
+      - path: /management-webclient
+        pathType: Prefix
+        backend:
+          service:
+            name: management-webclient
+            port: 
+              number: 8082
