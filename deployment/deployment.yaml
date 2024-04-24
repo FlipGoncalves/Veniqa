@@ -390,7 +390,7 @@ metadata:
     app: wordpress
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 100Mi  # Adjust size as needed
@@ -415,6 +415,7 @@ spec:
     app: wordpress
     tier: mysql
   clusterIP: None
+  
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -429,6 +430,7 @@ spec:
   resources:
     requests:
       storage: 100Mi
+
 ---
 apiVersion: apps/v1
 kind: Deployment

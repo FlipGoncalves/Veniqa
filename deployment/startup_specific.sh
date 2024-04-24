@@ -15,7 +15,7 @@ echo
 
 echo -- Management WebClient --
 cd /vagrant/management-webclient
-docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . -q
+docker build -t registry.deti/gic-asenhoradosaneis/management-webclient .
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/management-webclient
 echo ---- Pushed Successfully ----
