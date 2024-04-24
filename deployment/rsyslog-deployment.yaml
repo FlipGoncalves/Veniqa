@@ -45,17 +45,3 @@ spec:
     - port: 5000
       targetPort: 5140
 
-# Create Storage for Rsyslog
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: rsyslog-static-pvc
-  namespace: gic-asenhoradosaneis
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 50Mi
