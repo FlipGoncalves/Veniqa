@@ -50,8 +50,24 @@ spec:
       containers:
       - name: management-webclient
         image: registry.deti/gic-asenhoradosaneis/management-webclient
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        imagePullPolicy: Always
         ports:
-          - containerPort: 8082
+          - containerPort: 8080
+      # - command: |
+      #   cd /var/static ; http-server .
+      #   resources: {}
+      #   volumeMounts:
+      #       - name: management-static
+      #         mountPath: '/app/dist' 
+      # restartPolicy: Always
+      # volumes:  
+      #   - name: management-static
+      #     persistentVolumeClaim:
+      #       claimName: webclient-static-pvc
 
 # Create Shopping Server deployment
 ---
@@ -107,10 +123,19 @@ spec:
         resources:
           requests:
             cpu: 100m
-            memory: 300Mi
+            memory: 100Mi
         imagePullPolicy: Always
         ports:
           - containerPort: 8080
+      #   resources: {}
+      #   volumeMounts:
+      #       - name: shopping-static
+      #         mountPath: '/var/static' 
+      # restartPolicy: Always
+      # volumes:  
+      #   - name: shopping-static
+      #     persistentVolumeClaim:
+      #       claimName: webclient-static-pvc
 
 # Create nginx deployment
 ---
@@ -138,24 +163,20 @@ spec:
           resources: {}
           volumeMounts:
             - name: webclient-static
-              # mountPath: '/management-webclient:/management-webclient-app'
-              mountPath: '/var/management-webclient-app/static'
-              # mountPath: '/shopping-webclient:/shopping-webclient-app'
-              # mountPath: '/var/shopping-webclient-app/static'
-              mountPath: '/var/static'
-            - name: server-static
-              # mountPath: '/management-server:/management-server-app'
-              mountPath: '/var/management-server-app/static'
-              # mountPath: '/shopping-server:/shopping-server-app'
-              mountPath: '/var/shopping-server-app/static'
+              mountPath: /var/static
+          #   - name: server-static
+          #     # mountPath: '/management-server:/management-server-app'
+          #     mountPath: '/var/management-server-app/static'
+          #     # mountPath: '/shopping-server:/shopping-server-app'
+          #     mountPath: '/var/shopping-server-app/static'
       restartPolicy: Always
       volumes:  
         - name: webclient-static
           persistentVolumeClaim:
             claimName: webclient-static-pvc
-        - name: server-static
-          persistentVolumeClaim:
-            claimName: server-static-pvc
+        # - name: server-static
+        #   persistentVolumeClaim:
+        #     claimName: server-static-pvc
         
 # Create Redis deployment
 ---
@@ -253,8 +274,8 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 8082
-    targetPort: 8082
+  - port: 80                    # 
+    targetPort: 8080
   selector:
     app: management-webclient
 
@@ -281,11 +302,11 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 8080
   selector:
     app: shopping-webclient
-
+ 
 # Create Service for Nginx
 ---
 apiVersion: v1
@@ -331,11 +352,7 @@ spec:
   ports:
     - port: 27000
       targetPort: 27017
-
-
-
-
-
+      
 
 # Configure Traefik
 ---
@@ -349,22 +366,43 @@ metadata:
     traefik.ingress.kubernetes.io/frontend-entry-points: http,https
     traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: gic-asenhoradosaneis-strip-kong@kubernetescrd
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   rules:
   - host: gic-asenhoradosaneis.k3s
     http:
       paths:
-      - path: /
+      # - path: /
+      #   pathType: ImplementationSpecific
+      #   backend:
+      #     service:
+      #       name: nginx
+      #       port: 
+      #         number: 80
+      - path: /shopping
         pathType: Prefix
         backend:
           service:
-            name: nginx
+            name: shopping-webclient
             port: 
               number: 80
-      - path: /management-webclient
+      - path: /management
         pathType: Prefix
         backend:
           service:
             name: management-webclient
             port: 
-              number: 8082
+              number: 80
+            
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  namespace: gic-asenhoradosaneis
+  name: strip-kong
+spec:
+  stripPrefixRegex:
+    regex:
+      - "^/[^/]+"
