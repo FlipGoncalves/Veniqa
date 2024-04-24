@@ -23,7 +23,13 @@ module.exports = {
       ],
     };
   },
-
+  chainWebpack: (config) => {
+    config.module
+      .rule('images')
+      .use('url-loader')
+      .tap(options => Object.assign({}, options, { name: '[name].[ext]' }));
+  },
+  publicPath: "shopping",
   devServer: {
     // open: process.platform === 'darwin',
     // host: '0.0.0.0',
