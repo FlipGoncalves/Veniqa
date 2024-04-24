@@ -1,8 +1,9 @@
 clear
 
-kubectl delete -f deployment.yaml
+kubectl delete -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
 echo
 echo
+
 while getopts d:h: flag
 do
     case "${flag}" in
@@ -13,20 +14,20 @@ done
 echo
 echo
 
-echo -- Management WebClient --
-cd /vagrant/management-webclient
-docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/management-webclient -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
 echo -- Shopping WebClient --
 cd /vagrant/shopping-webclient
 docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+echo -- Management WebClient --
+cd /vagrant/management-webclient
+docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/management-webclient -q
 echo ---- Pushed Successfully ----
 echo
 echo
@@ -82,3 +83,7 @@ kubectl apply -f /vagrant/deployment/server-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/redis-server.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/mongodb-server.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
+
+
+# kubectl cp -n gic-asenhoradosaneis /vagrant/shopping-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
+# kubectl cp -n gic-asenhoradosaneis /vagrant/management-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
