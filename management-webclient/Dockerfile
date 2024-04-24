@@ -1,28 +1,28 @@
-FROM node:lts-alpine
+FROM node:14-alpine
 
 # install simple http server for serving static content
 RUN npm install -g http-server
 
-# make the 'app' folder the current working directory
-WORKDIR /app
+# make the '/app/management' folder the current working directory
+RUN mkdir /app
+RUN mkdir /app/management
+WORKDIR /app/management
 
 # copy both 'package.json' and 'package-lock.json' (if available)
 COPY package*.json ./
 
 # install project dependencies
-RUN npm remove node-sass axios
-RUN npm install sass
 RUN npm install
-RUN npm install axios 
 
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+# copy project files and folders to the current working directory
 COPY . .
 
-# Expose application port
-EXPOSE 3000
+VOLUME /app/management
 
 # Start the application
-CMD npm start
+RUN npm run build
 
+# Expose application port
+EXPOSE 8082/tcp
 # http-server by default launches it on port 8080
-CMD [ "http-server", "dist" ]
+CMD ["http-server", "dist"]

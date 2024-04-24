@@ -1,15 +1,15 @@
 FROM mhart/alpine-node:8
 
-WORKDIR /app
+WORKDIR /shopping-server-app
 
-COPY package*.json /app/
+COPY package*.json /shopping-server-app/
 
 RUN npm install
 
-RUN npm run build
-
-COPY . /app/
+COPY . /shopping-server-app/
 
 EXPOSE 3000
+
+CMD [ "npm", "run", "deploy" ]
 
 CMD [ "npm", "start" ]
