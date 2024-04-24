@@ -69,8 +69,8 @@ echo
 echo
 
 echo -- Wordpress --
-cd /vagrant/www
-docker build -t registry.deti/gic-asenhoradosaneis/wordpress . -q
+cd /vagrant/wordpress
+docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/wordpress -q
 echo ---- Pushed Successfully ----

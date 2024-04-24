@@ -137,6 +137,29 @@ spec:
       #     persistentVolumeClaim:
       #       claimName: webclient-static-pvc
 
+# Create Shopping WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: registry.deti/gic-asenhoradosaneis/wordpress
+        ports:
+          - containerPort: 8080
+
 # Create nginx deployment
 ---
 apiVersion: apps/v1
@@ -322,6 +345,20 @@ spec:
   selector:
     app: nginx
 
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: wordpress
+
 # Create Service for Redis
 ---
 apiVersion: v1
@@ -375,13 +412,6 @@ spec:
   - host: gic-asenhoradosaneis.k3s
     http:
       paths:
-      # - path: /
-      #   pathType: ImplementationSpecific
-      #   backend:
-      #     service:
-      #       name: nginx
-      #       port: 
-      #         number: 80
       - path: /
         pathType: ImplementationSpecific
         backend:
