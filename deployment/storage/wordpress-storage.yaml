@@ -1,0 +1,35 @@
+
+
+# Persistent Volume Claim for WordPress
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wordpress-static-pvc
+  namespace: gic-asenhoradosaneis
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 10Mi
+
+
+
+  
+# # # # # # # Persistent Volume Claim for WordPress Mysql
+# # # # # # ---
+# # # # # # apiVersion: v1
+# # # # # # kind: PersistentVolumeClaim
+# # # # # # metadata:
+# # # # # #   name: mysql-pv-claim
+# # # # # #   namespace: gic-asenhoradosaneis
+# # # # # #   labels:
+# # # # # #     app: wordpress
+# # # # # # spec:
+# # # # # #   accessModes:
+# # # # # #     - ReadWriteOnce
+# # # # # #   resources:
+# # # # # #     requests:
+# # # # # #       storage: 100Mi
