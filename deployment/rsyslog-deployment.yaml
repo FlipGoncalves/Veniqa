@@ -6,7 +6,7 @@ metadata:
   labels:
     app: rsyslog
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: rsyslog
@@ -17,19 +17,45 @@ spec:
     spec:
       containers:
       - name: rsyslog
-        image: registry.deti/gic-asenhoradosaneis/rsyslog
+        image: registry.deti/gic-asenhoradosaneis/rsyslog:v1
         ports:
-        - containerPort: 514
-        # resources:
-        #   requests:
-        #     cpu: 250m
-        #     memory: 524Mi
-        # volumeMounts:
-        #   - name: efs
-        #     mountPath: "/var/log"
+        - containerPort: 5140
+        resources: {}
+        volumeMounts:
+          - name: rsyslog-static
+            mountPath: "/var/log"
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
-      # volumes:
-      #   - name: efs
-      #     persistentVolumeClaim:
-      #       claimName: efs
+      volumes:
+        - name: rsyslog-static
+          persistentVolumeClaim:
+            claimName: rsyslog-static-pvc
+
+# Create Service for Rsyslog
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyslog-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: rsyslog-server
+  ports:
+    - port: 5000
+      targetPort: 5140
+
+# Create Storage for Rsyslog
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rsyslog-static-pvc
+  namespace: gic-asenhoradosaneis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Mi
