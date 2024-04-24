@@ -1,6 +1,6 @@
 clear
 
-kubectl delete -f deployment.yaml
+# kubectl delete -f deployment.yaml
 echo
 echo
 while getopts d:h: flag
@@ -13,14 +13,14 @@ done
 echo
 echo
 
-echo -- Management WebClient --
-cd /vagrant/management-webclient
-docker build -t registry.deti/gic-asenhoradosaneis/management-webclient .
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/management-webclient
-echo ---- Pushed Successfully ----
-echo
-echo
+# echo -- Management WebClient --
+# cd /vagrant/management-webclient
+# docker build -t registry.deti/gic-asenhoradosaneis/management-webclient .
+# echo ---- Built Successfully ----
+# docker push registry.deti/gic-asenhoradosaneis/management-webclient
+# echo ---- Pushed Successfully ----
+# echo
+# echo
 
 # echo -- Shopping WebClient --
 # cd /vagrant/shopping-webclient
@@ -31,23 +31,23 @@ echo
 # echo
 # echo
 
-# echo -- Management Server --
-# cd /vagrant/management-server
-# docker build -t registry.deti/gic-asenhoradosaneis/management-server . -q
-# echo ---- Built Successfully ----
-# docker push registry.deti/gic-asenhoradosaneis/management-server -q
-# echo ---- Pushed Successfully ----
-# echo
-# echo
+echo -- Management Server --
+cd /vagrant/management-server
+docker build -t registry.deti/gic-asenhoradosaneis/management-server .
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/management-server -q
+echo ---- Pushed Successfully ----
+echo
+echo
 
-# echo -- Shopping Server --
-# cd /vagrant/shopping-server
-# docker build -t registry.deti/gic-asenhoradosaneis/shopping-server . -q
-# echo ---- Built Successfully ----
-# docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
-# echo ---- Pushed Successfully ----
-# echo
-# echo
+echo -- Shopping Server --
+cd /vagrant/shopping-server
+docker build -t registry.deti/gic-asenhoradosaneis/shopping-server .
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
+echo ---- Pushed Successfully ----
+echo
+echo
 
 # echo -- Nginx --
 # cd /vagrant/nginx

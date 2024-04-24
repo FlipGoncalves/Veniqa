@@ -260,7 +260,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 4202
+  - port: 8091
     targetPort: 3000
   selector:
     app: management-server
@@ -289,7 +289,7 @@ metadata:
 spec:
   ports:
   - port: 8090
-    targetPort: 8090
+    targetPort: 3000
   selector:
     app: shopping-server
 
