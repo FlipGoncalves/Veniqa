@@ -179,43 +179,43 @@ spec:
         #     claimName: server-static-pvc
         
 # Create Redis deployment
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: redis-server
-  namespace: gic-asenhoradosaneis
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: redis-server
-  template:
-    metadata:
-      labels:
-        app: redis-server
-    spec:
-      containers:
-      - name: redis-server
-        image: "redis:alpine"
-        args: ["--requirepass", "SOME_PASSWORD"]
-        ports:
-          - name: redis-server
-            containerPort: 6379
-        volumeMounts:
-          - name: redis-static
-            mountPath: /data
-          - name: redis-secret
-            mountPath: "/tmp/redis-secrets"
-            readOnly: true
-      restartPolicy: Always
-      volumes:  
-        - name: redis-static
-          persistentVolumeClaim:
-            claimName: redis-static-pvc
-        - name: redis-secret
-          secret:
-            secretName: redis-secret
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: redis-server
+#   namespace: gic-asenhoradosaneis
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: redis-server
+#   template:
+#     metadata:
+#       labels:
+#         app: redis-server
+#     spec:
+#       containers:
+#       - name: redis-server
+#         image: "redis:alpine"
+#         args: ["--requirepass", "SOME_PASSWORD"]
+#         ports:
+#           - name: redis-server
+#             containerPort: 6379
+#         volumeMounts:
+#           - name: redis-static
+#             mountPath: /data
+#           - name: redis-secret
+#             mountPath: "/tmp/redis-secrets"
+#             readOnly: true
+#       restartPolicy: Always
+#       volumes:  
+#         - name: redis-static
+#           persistentVolumeClaim:
+#             claimName: redis-static-pvc
+#         - name: redis-secret
+#           secret:
+#             secretName: redis-secret
 
 # Create MongoDB deployment
 ---
@@ -323,36 +323,36 @@ spec:
     app: nginx
 
 # Create Service for Redis
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-server
-  namespace: gic-asenhoradosaneis
-spec:
-  selector:
-    app: redis-server
-  type: LoadBalancer
-  ports:
-    - name: redis-port
-      protocol: TCP
-      port: 6379
-      targetPort: 6379
-  loadBalancerIP: 192.168.0.204
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: redis-server
+#   namespace: gic-asenhoradosaneis
+# spec:
+#   selector:
+#     app: redis-server
+#   type: LoadBalancer
+#   ports:
+#     - name: redis-port
+#       protocol: TCP
+#       port: 6379
+#       targetPort: 6379
+#   loadBalancerIP: 192.168.0.204
 
 # Create Service for Redis
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb-server
-  namespace: gic-asenhoradosaneis
-spec:
-  selector:
-    app: mongodb-server
-  ports:
-    - port: 27000
-      targetPort: 27017
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: mongodb-server
+#   namespace: gic-asenhoradosaneis
+# spec:
+#   selector:
+#     app: mongodb-server
+#   ports:
+#     - port: 27000
+#       targetPort: 27017
       
 
 # Configure Traefik
