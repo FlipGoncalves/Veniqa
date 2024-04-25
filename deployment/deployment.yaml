@@ -54,7 +54,7 @@ spec:
         ports:
           - containerPort: 8080
 
-# Create Shopping WebClient deployment
+# Create Shopping Wordpress deployment
 ---
 apiVersion: apps/v1
 kind: Deployment

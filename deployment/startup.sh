@@ -97,8 +97,8 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
-kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
+# kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
+# kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/rsyslog-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/redis-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/mongodb-storage.yaml -n gic-asenhoradosaneis
