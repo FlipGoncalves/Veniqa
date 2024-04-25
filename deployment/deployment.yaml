@@ -77,6 +77,40 @@ spec:
         ports:
           - containerPort: 8080
 
+# Create Rsyslog deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsyslog-deployment
+  namespace: gic-asenhoradosaneis
+  labels:
+    app: rsyslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsyslog
+  template:
+    metadata:
+      labels:
+        app: rsyslog
+    spec:
+      containers:
+      - name: rsyslog
+        image: registry.deti/gic-asenhoradosaneis/rsyslog:v1
+        ports:
+        - containerPort: 5140
+        resources: {}
+        volumeMounts:
+          - name: rsyslog-static
+            mountPath: "/var/log"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: rsyslog-static
+          persistentVolumeClaim:
+            claimName: rsyslog-static-pvc
+
 # Create MongoDB deployment
 ---
 apiVersion: apps/v1
@@ -415,6 +449,19 @@ spec:
     - port: 27000
       targetPort: 27017
       
+# Create Service for Rsyslog
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyslog-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: rsyslog-server
+  ports:
+    - port: 5000
+      targetPort: 5140
 
 # Configure Traefik
 ---

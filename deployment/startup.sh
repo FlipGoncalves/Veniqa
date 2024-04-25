@@ -87,16 +87,13 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
-
-cd /vagrant
-kubectl apply -f /vagrant/deployment/webclient-storage.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/rsyslog-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/redis-server.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/mongodb-server.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/redis-storage.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/mongodb-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 
-
-# kubectl cp -n gic-asenhoradosaneis /vagrant/shopping-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
-# kubectl cp -n gic-asenhoradosaneis /vagrant/management-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
+echo
+cd /vagrant/deployment/secrets
+./secrets.sh
