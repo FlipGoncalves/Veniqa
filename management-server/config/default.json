@@ -18,7 +18,8 @@
     },
     "allowed_origins": [
         "https://dev-veniqa-admin.netlify.com",
-        "http://localhost:5202"
+        "http://localhost:5202",
+        "http://gic-asenhoradosaneis.k3s/management"
     ],
     "token_validity": {
         "password_reset_token_valid_for": 3600000

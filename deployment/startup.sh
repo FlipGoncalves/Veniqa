@@ -68,9 +68,19 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
+echo -- Redis --
+cd /vagrant/redis
+docker build -t registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-mongo . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+
 echo -- Wordpress --
-cd /vagrant/www
-docker build -t registry.deti/gic-asenhoradosaneis/wordpress . -q
+cd /vagrant/wordpress
+docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/wordpress -q
 echo ---- Pushed Successfully ----
@@ -87,16 +97,13 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
-
-cd /vagrant
-kubectl apply -f /vagrant/deployment/webclient-storage.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/rsyslog-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/redis-server.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/mongodb-server.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/redis-storage.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/storage/mongodb-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 
-
-# kubectl cp -n gic-asenhoradosaneis /vagrant/shopping-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
-# kubectl cp -n gic-asenhoradosaneis /vagrant/management-webclient/dist/. nginx-84d987986b-4gxgt:/var/static
+echo
+cd /vagrant/deployment/secrets
+./secrets.sh
