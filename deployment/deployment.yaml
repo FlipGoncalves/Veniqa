@@ -287,6 +287,12 @@ spec:
         ports:
           - name: redis-server
             containerPort: 6379
+        env:
+        - name: REDIS_REPLICATION_MODE
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_REPLICATION_MODE
         volumeMounts:
           - name: redis-static
             mountPath: /data
