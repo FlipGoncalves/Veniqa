@@ -17,7 +17,8 @@
         "max_age": 1800000
     },
     "allowed_origins": [
-        "https://admin.veniqa.com"
+        "https://admin.veniqa.com",
+        "http://gic-asenhoradosaneis.k3s/management"
     ],
     "token_validity": {
         "password_reset_token_valid_for": 3600000

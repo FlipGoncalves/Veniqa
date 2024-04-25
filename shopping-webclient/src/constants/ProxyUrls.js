@@ -1,5 +1,5 @@
 export default {
-  baseUrl: 'https://shop-server.veniqa.com/',
+  baseUrl: 'http://gic-asenhoradosaneis.k3s/shoserver',
   registerUrl: '/security/signup',
   loginUrl: '/security/login',
   logoutUrl: '/security/logout',
