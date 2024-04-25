@@ -68,6 +68,16 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
+echo -- Redis --
+cd /vagrant/redis
+docker build -t registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-mongo . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+
 echo -- Wordpress --
 cd /vagrant/wordpress
 docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . -q
@@ -87,8 +97,8 @@ echo ---- Pushed Successfully ----
 echo
 echo
 
-kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
+# kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
+# kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/rsyslog-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/redis-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/mongodb-storage.yaml -n gic-asenhoradosaneis

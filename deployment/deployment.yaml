@@ -54,7 +54,7 @@ spec:
         ports:
           - containerPort: 8080
 
-# Create Shopping WebClient deployment
+# Create Shopping Wordpress deployment
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -309,6 +309,7 @@ spec:
   selector:
     matchLabels:
       app: redis-server
+  strategy: {}
   template:
     metadata:
       labels:
@@ -316,8 +317,7 @@ spec:
     spec:
       containers:
       - name: redis-server
-        image: "redis:alpine"
-        args: ["--requirepass", "SOME_PASSWORD"]
+        image: registry.deti/gic-asenhoradosaneis/redis:v1
         ports:
           - name: redis-server
             containerPort: 6379
@@ -427,15 +427,11 @@ metadata:
 spec:
   selector:
     app: redis-server
-  type: LoadBalancer
   ports:
-    - name: redis-port
-      protocol: TCP
-      port: 6379
+    - port: 6000
       targetPort: 6379
-  loadBalancerIP: 192.168.0.204
 
-# Create Service for Redis
+# Create Service for Mongo db
 ---
 apiVersion: v1
 kind: Service

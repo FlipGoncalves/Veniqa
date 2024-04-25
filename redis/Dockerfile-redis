@@ -1,7 +1,10 @@
-FROM mongo
+From ubuntu
 
-COPY ./mongo-data/datadump /home/dump
-COPY ./mongo.sh /home/mongo.sh
-RUN chmod 777 /home/mongo.sh
+RUN apt update && apt install lsb-release curl gpg
+RUN curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 
-CMD /home/mongo.sh
+RUN echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+RUN apt-get install redis
+
+ENTRYPOINT ["redisd", "-n"]
