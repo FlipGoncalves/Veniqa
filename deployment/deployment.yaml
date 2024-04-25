@@ -273,7 +273,7 @@ spec:
 # Create MongoDB deployment
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: mongodb-server
   namespace: gic-asenhoradosaneis
@@ -467,6 +467,13 @@ spec:
             name: management-webclient
             port: 
               number: 80
+      - path: /mongo
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: mongodb-server
+            port: 
+              number: 27000
             
 ---
 apiVersion: traefik.containo.us/v1alpha1
