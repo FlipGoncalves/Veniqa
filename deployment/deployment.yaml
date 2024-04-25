@@ -460,6 +460,13 @@ spec:
             name: shopping-webclient
             port: 
               number: 80
+      - path: /shoserver
+        pathType: Prefix
+        backend:
+          service:
+            name: shopping-server
+            port: 
+              number: 8090
       - path: /management
         pathType: Prefix
         backend:
@@ -467,13 +474,13 @@ spec:
             name: management-webclient
             port: 
               number: 80
-      - path: /mongo
-        pathType: ImplementationSpecific
+      - path: /manserver
+        pathType: Prefix
         backend:
           service:
-            name: mongodb-server
+            name: management-server
             port: 
-              number: 27000
+              number: 8091
             
 ---
 apiVersion: traefik.containo.us/v1alpha1

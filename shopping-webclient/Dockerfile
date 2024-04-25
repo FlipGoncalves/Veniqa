@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:14-alpine
 
 # install simple http server for serving static content
 RUN npm install -g http-server
@@ -12,6 +12,7 @@ COPY package*.json ./
 
 # install project dependencies
 RUN npm install
+RUN npm install axios sass
 
 # copy project files and folders to the current working directory
 COPY . .
@@ -20,7 +21,13 @@ VOLUME /app
 
 # Start the application
 RUN npm run build
-COPY dist /var/static
+COPY dist/css/. /var/static/css/.
+COPY dist/js/. /var/static/js/.
+COPY dist/img/. /var/static/img/.
+COPY dist/index.html /var/static/index.html
+COPY dist/favicon.ico /var/static/favicon.ico
+COPY dist/Wireframes/. /var/static/Wireframes/.
+COPY dist/AmazonSearchResult.json /var/static/AmazonSearchResult.json
 
 # http-server by default launches it on port 8080
 CMD ["http-server", "dist"]
