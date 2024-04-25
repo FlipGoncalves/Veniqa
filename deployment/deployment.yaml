@@ -77,6 +77,38 @@ spec:
         ports:
           - containerPort: 8080
 
+# Create MongoDB deployment
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-server
+  template:
+    metadata:
+      labels:
+        app: mongodb-server
+    spec:
+      containers:
+      - name: mongodb-server
+        image: registry.deti/gic-asenhoradosaneis/mongodb
+        ports:
+          - name: mongodb-server
+            containerPort: 27017
+        volumeMounts:
+          - name: mongodb-static
+            mountPath: dbconfig:/data/configdb
+            mountPath: dbdata:/data/db
+      restartPolicy: Always
+      volumes:  
+        - name: mongodb-static
+          persistentVolumeClaim:
+            claimName: mongodb-static-pvc
 
 
 
@@ -270,39 +302,6 @@ spec:
           secret:
             secretName: redis-secret
 
-# Create MongoDB deployment
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: mongodb-server
-  namespace: gic-asenhoradosaneis
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mongodb-server
-  template:
-    metadata:
-      labels:
-        app: mongodb-server
-    spec:
-      containers:
-      - name: mongodb-server
-        image: registry.deti/gic-asenhoradosaneis/mongodb
-        ports:
-          - name: mongodb-server
-            containerPort: 27017
-        volumeMounts:
-          - name: mongodb-static
-            mountPath: dbconfig:/data/configdb
-            mountPath: dbdata:/data/db
-      restartPolicy: Always
-      volumes:  
-        - name: mongodb-static
-          persistentVolumeClaim:
-            claimName: mongodb-static-pvc
-
 
 
 
@@ -331,7 +330,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 80                    # 
+  - port: 80                    
     targetPort: 8080
   selector:
     app: management-webclient
@@ -363,21 +362,6 @@ spec:
     targetPort: 8080
   selector:
     app: shopping-webclient
-
-
-# # Create Service for Nginx
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: nginx
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   ports:
-#   - port: 80
-#     targetPort: 80
-#   selector:
-#     app: nginx
 
 # Create Service for Nginx
 ---
