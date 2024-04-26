@@ -70,7 +70,7 @@ echo
 
 echo -- Redis --
 cd /vagrant/redis
-docker build -t registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-mongo . -q
+docker build -t  registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-redis . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
 echo ---- Pushed Successfully ----
@@ -83,6 +83,16 @@ cd /vagrant/wordpress
 docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . -q
 echo ---- Built Successfully ----
 docker push registry.deti/gic-asenhoradosaneis/wordpress -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+
+echo -- Redis --
+cd /vagrant/redis
+docker build -t registry.deti/gic-asenhoradosaneis/redis:v2 -f Dockerfile-redis . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/redis:v2  -q
 echo ---- Pushed Successfully ----
 echo
 echo

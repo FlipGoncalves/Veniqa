@@ -295,8 +295,6 @@ spec:
 
 
 
-
-
 # Create Redis deployment
 ---
 apiVersion: apps/v1
@@ -317,10 +315,10 @@ spec:
     spec:
       containers:
       - name: redis-server
-        image: registry.deti/gic-asenhoradosaneis/redis:v1
+        image: registry.deti/gic-asenhoradosaneis/redis:v2
         ports:
           - name: redis-server
-            containerPort: 6379
+            containerPort: 8379
         env:
         - name: REDIS_REPLICATION_MODE
           valueFrom:
@@ -344,6 +342,21 @@ spec:
 
 
 
+
+
+# Create Service for Redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: redis-server
+  ports:
+    - port: 8000
+      targetPort: 8379
 
 
 
@@ -417,19 +430,6 @@ spec:
   selector:
     app: wordpress
 
-# Create Service for Redis
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-server
-  namespace: gic-asenhoradosaneis
-spec:
-  selector:
-    app: redis-server
-  ports:
-    - port: 6000
-      targetPort: 6379
 
 # Create Service for Mongo db
 ---
