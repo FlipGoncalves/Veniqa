@@ -318,7 +318,7 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/redis:v2
         ports:
           - name: redis-server
-            containerPort: 8379
+            containerPort: 6379
         env:
         - name: REDIS_REPLICATION_MODE
           valueFrom:
@@ -355,8 +355,8 @@ spec:
   selector:
     app: redis-server
   ports:
-    - port: 8000
-      targetPort: 8379
+    - port: 6000
+      targetPort: 6379
 
 
 
