@@ -1,17 +1,16 @@
 clear
 
+echo -- Delete Kubectl --
 kubectl delete -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
-echo
 echo
 
 while getopts d:h: flag
 do
     case "${flag}" in
-        d) docker system prune -a --volumes;;
+        d) echo -- Delete Docker -- && docker system prune -a --volumes;;
         h) echo Flags: -d       : Clean docker images/containers/volumes;;
     esac
 done
-echo
 echo
 
 echo -- Shopping WebClient --
@@ -30,38 +29,23 @@ echo -- MongoDB --
 cd /vagrant/mongo && docker build -t registry.deti/gic-asenhoradosaneis/mongodb -f Dockerfile-mongo . && docker push registry.deti/gic-asenhoradosaneis/mongodb -q
 
 echo -- Redis --
-cd /vagrant/redis
-docker build -t  registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-redis . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
+cd /vagrant/redis && docker build -t  registry.deti/gic-asenhoradosaneis/redis:v2 -f Dockerfile-redis . && docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
 
 echo -- Wordpress --
 cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . && docker push registry.deti/gic-asenhoradosaneis/wordpress -q
 
-echo -- Redis --
-cd /vagrant/redis
-docker build -t registry.deti/gic-asenhoradosaneis/redis:v2 -f Dockerfile-redis . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/redis:v2  -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
-
 echo -- Rsyslog --
 cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
 
-# kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
-# kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/rsyslog-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/redis-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/mongodb-storage.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/deployment.yaml -n gic-asenhoradosaneis
+echo -- Secrets --
+chmod 777 /vagrant/deployment/secrets.sh
+./vagrant/deployment/secrets.sh
 
-echo
-cd /vagrant/deployment/secrets
-./secrets.sh
+echo -- Apply Kubectl --
+kubectl apply -f /vagrant/deployment/storage/storage.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/rsyslogdeployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis

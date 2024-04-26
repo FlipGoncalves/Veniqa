@@ -27,4 +27,3 @@ kubectl create secret generic management-server-secret \
 kubectl create secret generic redis-secret \
     --from-literal=REDIS_REPLICATION_MODE=master \
     -n gic-asenhoradosaneis
-
