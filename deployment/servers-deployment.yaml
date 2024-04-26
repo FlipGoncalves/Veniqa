@@ -1,0 +1,187 @@
+# Create Management Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-server
+  template:
+    metadata:
+      labels:
+        app: management-server
+    spec:
+      containers:
+      - name: management-server
+        image: registry.deti/gic-asenhoradosaneis/management-server
+        ports:
+          - containerPort: 3000
+        env:
+        - name: VENIQA_MONGODB_DB
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_DB
+        - name: VENIQA_MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_URL
+        - name: VENIQA_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_HOST
+        - name: VENIQA_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PORT
+        - name: VENIQA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PASSWORD
+        - name: VENIQA_REDIS_DB_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_DB_NUMBER
+        - name: VENIQA_SESSION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_SESSION_SECRET_KEY
+        - name: VENIQA_CRYPTO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_CRYPTO_SECRET_KEY
+        volumeMounts:
+          - name: management-server-secret
+            mountPath: "/tmp/management-server-secrets"
+            readOnly: true
+      volumes:
+        - name: management-server-secret
+          secret:
+            secretName: management-server-secret
+      restartPolicy: Always
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: management-webclient
+
+# Create Shopping Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-server
+  template:
+    metadata:
+      labels:
+        app: shopping-server
+    spec:
+      containers:
+      - name: shopping-server
+        image: registry.deti/gic-asenhoradosaneis/shopping-server
+        ports:
+          - containerPort: 3000
+        env:
+        - name: VENIQA_MONGODB_DB
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_MONGODB_DB
+        - name: VENIQA_MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_MONGODB_URL
+        - name: VENIQA_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_HOST
+        - name: VENIQA_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_PORT
+        - name: VENIQA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_PASSWORD
+        - name: VENIQA_REDIS_DB_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_DB_NUMBER
+        - name: VENIQA_SESSION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_SESSION_SECRET_KEY
+        - name: VENIQA_CRYPTO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_CRYPTO_SECRET_KEY
+        volumeMounts:
+          - name: shopping-server-secret
+            mountPath: "/tmp/shopping-server-secrets"
+            readOnly: true
+      volumes:
+        - name: shopping-server-secret
+          secret:
+            secretName: shopping-server-secret
+      restartPolicy: Always
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: shopping-webclient
+
+# Create Service for Management Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 8092
+    targetPort: 3000
+  selector:
+    app: management-server
+
+# Create Service for Shopping Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 8091
+    targetPort: 3000
+  selector:
+    app: shopping-server

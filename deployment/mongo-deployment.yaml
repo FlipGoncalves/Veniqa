@@ -1,0 +1,46 @@
+# Create MongoDB deployment
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-server
+  template:
+    metadata:
+      labels:
+        app: mongodb-server
+    spec:
+      containers:
+      - name: mongodb-server
+        image: registry.deti/gic-asenhoradosaneis/mongo:v1
+        ports:
+          - name: mongodb-server
+            containerPort: 27017
+        volumeMounts:
+          - name: mongodb-static
+            mountPath: dbconfig:/data/configdb
+            mountPath: dbdata:/data/db
+      restartPolicy: Always
+      volumes:  
+        - name: mongodb-static
+          persistentVolumeClaim:
+            claimName: mongodb-static-pvc
+
+# Create Service for Mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: mongodb-server
+  ports:
+    - port: 27000
+      targetPort: 27017

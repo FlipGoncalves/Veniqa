@@ -15,87 +15,25 @@ echo
 echo
 
 echo -- Shopping WebClient --
-cd /vagrant/shopping-webclient
-docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
-echo ---- Pushed Successfully ----
-echo
-echo
+cd /vagrant/shopping-webclient && docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . && docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
 
 echo -- Management WebClient --
-cd /vagrant/management-webclient
-docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/management-webclient -q
-echo ---- Pushed Successfully ----
-echo
-echo
+cd /vagrant/management-webclient && docker build -t registry.deti/gic-asenhoradosaneis/management-webclient . && docker push registry.deti/gic-asenhoradosaneis/management-webclient -q
 
 echo -- Management Server --
-cd /vagrant/management-server
-docker build -t registry.deti/gic-asenhoradosaneis/management-server . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/management-server -q
-echo ---- Pushed Successfully ----
-echo
-echo
+cd /vagrant/management-server && docker build -t registry.deti/gic-asenhoradosaneis/management-server . && docker push registry.deti/gic-asenhoradosaneis/management-server -q
 
 echo -- Shopping Server --
-cd /vagrant/shopping-server
-docker build -t registry.deti/gic-asenhoradosaneis/shopping-server . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
-echo -- Nginx --
-cd /vagrant/nginx
-docker build -t registry.deti/gic-asenhoradosaneis/nginx -f Dockerfile.nginx . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/nginx -q
-echo ---- Pushed Successfully ----
-echo
-echo
+cd /vagrant/shopping-server && docker build -t registry.deti/gic-asenhoradosaneis/shopping-server . && docker push registry.deti/gic-asenhoradosaneis/shopping-server -q
 
 echo -- MongoDB --
-cd /vagrant/mongo
-docker build -t registry.deti/gic-asenhoradosaneis/mongodb -f Dockerfile-mongo . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/mongodb -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
-echo -- Redis --
-cd /vagrant/redis
-docker build -t registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-mongo . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
+cd /vagrant/mongo && docker build -t registry.deti/gic-asenhoradosaneis/mongodb -f Dockerfile-mongo . && docker push registry.deti/gic-asenhoradosaneis/mongodb -q
 
 echo -- Wordpress --
-cd /vagrant/wordpress
-docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/wordpress -q
-echo ---- Pushed Successfully ----
-echo
-echo
-
+cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . && docker push registry.deti/gic-asenhoradosaneis/wordpress -q
 
 echo -- Rsyslog --
-cd /vagrant/rsyslog
-docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . -q
-echo ---- Built Successfully ----
-docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
-echo ---- Pushed Successfully ----
-echo
-echo
+cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
 
 # kubectl apply -f /vagrant/deployment/storage/webclient-storage.yaml -n gic-asenhoradosaneis
 # kubectl apply -f /vagrant/deployment/storage/server-storage.yaml -n gic-asenhoradosaneis
