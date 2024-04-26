@@ -29,8 +29,28 @@ cd /vagrant/shopping-server && docker build -t registry.deti/gic-asenhoradosanei
 echo -- MongoDB --
 cd /vagrant/mongo && docker build -t registry.deti/gic-asenhoradosaneis/mongodb -f Dockerfile-mongo . && docker push registry.deti/gic-asenhoradosaneis/mongodb -q
 
+echo -- Redis --
+cd /vagrant/redis
+docker build -t  registry.deti/gic-asenhoradosaneis/redis:v1 -f Dockerfile-redis . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
+
 echo -- Wordpress --
 cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . && docker push registry.deti/gic-asenhoradosaneis/wordpress -q
+
+echo -- Redis --
+cd /vagrant/redis
+docker build -t registry.deti/gic-asenhoradosaneis/redis:v2 -f Dockerfile-redis . -q
+echo ---- Built Successfully ----
+docker push registry.deti/gic-asenhoradosaneis/redis:v2  -q
+echo ---- Pushed Successfully ----
+echo
+echo
+
 
 echo -- Rsyslog --
 cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q

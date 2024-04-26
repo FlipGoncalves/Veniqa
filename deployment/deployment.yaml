@@ -1,3 +1,302 @@
+# Create Management WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-webclient
+  template:
+    metadata:
+      labels:
+        app: management-webclient
+    spec:
+      containers:
+      - name: management-webclient
+        image: registry.deti/gic-asenhoradosaneis/management-webclient
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+
+# Create Shopping WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-webclient
+  template:
+    metadata:
+      labels:
+        app: shopping-webclient
+    spec:
+      containers:
+      - name: shopping-webclient
+        image: registry.deti/gic-asenhoradosaneis/shopping-webclient
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+
+# Create Shopping Wordpress deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: registry.deti/gic-asenhoradosaneis/wordpress
+        ports:
+          - containerPort: 8080
+
+# Create Rsyslog deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rsyslog-deployment
+  namespace: gic-asenhoradosaneis
+  labels:
+    app: rsyslog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rsyslog
+  template:
+    metadata:
+      labels:
+        app: rsyslog
+    spec:
+      containers:
+      - name: rsyslog
+        image: registry.deti/gic-asenhoradosaneis/rsyslog:v1
+        ports:
+        - containerPort: 5140
+        resources: {}
+        volumeMounts:
+          - name: rsyslog-static
+            mountPath: "/var/log"
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: rsyslog-static
+          persistentVolumeClaim:
+            claimName: rsyslog-static-pvc
+
+# Create MongoDB deployment
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-server
+  template:
+    metadata:
+      labels:
+        app: mongodb-server
+    spec:
+      containers:
+      - name: mongodb-server
+        image: registry.deti/gic-asenhoradosaneis/mongodb
+        ports:
+          - name: mongodb-server
+            containerPort: 27017
+        volumeMounts:
+          - name: mongodb-static
+            mountPath: dbconfig:/data/configdb
+            mountPath: dbdata:/data/db
+      restartPolicy: Always
+      volumes:  
+        - name: mongodb-static
+          persistentVolumeClaim:
+            claimName: mongodb-static-pvc
+
+
+
+
+
+# Create Management Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-server
+  template:
+    metadata:
+      labels:
+        app: management-server
+    spec:
+      containers:
+      - name: management-server
+        image: registry.deti/gic-asenhoradosaneis/management-server
+        ports:
+          - containerPort: 3000
+        env:
+        - name: VENIQA_MONGODB_DB
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_DB
+        - name: VENIQA_MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_URL
+        - name: VENIQA_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_HOST
+        - name: VENIQA_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PORT
+        - name: VENIQA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PASSWORD
+        - name: VENIQA_REDIS_DB_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_DB_NUMBER
+        - name: VENIQA_SESSION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_SESSION_SECRET_KEY
+        - name: VENIQA_CRYPTO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_CRYPTO_SECRET_KEY
+        volumeMounts:
+          - name: management-server-secret
+            mountPath: "/tmp/management-server-secrets"
+            readOnly: true
+      volumes:
+        - name: management-server-secret
+          secret:
+            secretName: management-server-secret
+
+# Create Shopping Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shopping-server
+  template:
+    metadata:
+      labels:
+        app: shopping-server
+    spec:
+      containers:
+      - name: shopping-server
+        image: registry.deti/gic-asenhoradosaneis/shopping-server
+        ports:
+          - containerPort: 3000
+        env:
+        - name: VENIQA_MONGODB_DB
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_MONGODB_DB
+        - name: VENIQA_MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_MONGODB_URL
+        - name: VENIQA_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_HOST
+        - name: VENIQA_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_PORT
+        - name: VENIQA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_PASSWORD
+        - name: VENIQA_REDIS_DB_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_REDIS_DB_NUMBER
+        - name: VENIQA_SESSION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_SESSION_SECRET_KEY
+        - name: VENIQA_CRYPTO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: shopping-server-secret
+              key: VENIQA_CRYPTO_SECRET_KEY
+        volumeMounts:
+          - name: shopping-server-secret
+            mountPath: "/tmp/shopping-server-secrets"
+            readOnly: true
+      volumes:
+        - name: shopping-server-secret
+          secret:
+            secretName: shopping-server-secret
+
+
+
+
+
+
 # Create Redis deployment
 ---
 apiVersion: apps/v1
@@ -17,8 +316,7 @@ spec:
     spec:
       containers:
       - name: redis-server
-        image: "redis:alpine"
-        args: ["--requirepass", "SOME_PASSWORD"]
+        image: registry.deti/gic-asenhoradosaneis/redis:v1
         ports:
           - name: redis-server
             containerPort: 6379
@@ -43,6 +341,81 @@ spec:
           secret:
             secretName: redis-secret
 
+
+
+
+
+
+# Create Service for Management Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 8092
+    targetPort: 3000
+  selector:
+    app: management-server
+
+# Create Service for Management WebClient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80                    
+    targetPort: 8080
+  selector:
+    app: management-webclient
+
+# Create Service for Shopping Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 8091
+    targetPort: 3000
+  selector:
+    app: shopping-server
+
+# Create Service for Shopping WebClient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shopping-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: shopping-webclient
+
+# Create Service for Wordpress
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+  selector:
+    app: wordpress
+
 # Create Service for Redis
 ---
 apiVersion: v1
@@ -53,70 +426,100 @@ metadata:
 spec:
   selector:
     app: redis-server
-  type: LoadBalancer
   ports:
-    - name: redis-port
-      protocol: TCP
-      port: 6379
+    - port: 6000
       targetPort: 6379
-  loadBalancerIP: 192.168.0.204
 
+# Create Service for Mongo db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: mongodb-server
+  ports:
+    - port: 27000
+      targetPort: 27017
+      
+# Create Service for Rsyslog
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rsyslog-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: rsyslog-server
+  ports:
+    - port: 5000
+      targetPort: 5140
 
-# # Create Redis deployment
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: redis-server
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   replicas: 1
-#   selector:
-#     matchLabels:
-#       app: redis-server
-#   strategy: {}
-#   template:
-#     metadata:
-#       labels:
-#         app: redis-server
-#     spec:
-#       containers:
-#       - name: redis-server
-#         image: registry.deti/gic-asenhoradosaneis/redis:v2
-#         ports:
-#           - name: redis-server
-#             containerPort: 6379
-#         env:
-#         - name: REDIS_REPLICATION_MODE
-#           valueFrom:
-#             secretKeyRef:
-#               name: redis-secret
-#               key: REDIS_REPLICATION_MODE
-#         volumeMounts:
-#           - name: redis-static
-#             mountPath: /data
-#           - name: redis-secret
-#             mountPath: "/tmp/redis-secrets"
-#             readOnly: true
-#       restartPolicy: Always
-#       volumes:  
-#         - name: redis-static
-#           persistentVolumeClaim:
-#             claimName: redis-static-pvc
-#         - name: redis-secret
-#           secret:
-#             secretName: redis-secret
-
-# # Create Service for Redis
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: redis-server
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   selector:
-#     app: redis-server
-#   ports:
-#     - port: 6379
-#       targetPort: 6379
+# Configure Traefik
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gic-asenhoradosaneis-k3s
+  namespace: gic-asenhoradosaneis
+  annotations:
+    spec.ingressClassName: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: gic-asenhoradosaneis-strip-kong@kubernetescrd
+spec:
+  rules:
+  - host: gic-asenhoradosaneis.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: wordpress
+            port: 
+              number: 80
+      - path: /shopping
+        pathType: Prefix
+        backend:
+          service:
+            name: shopping-webclient
+            port: 
+              number: 80
+      - path: /shoserver
+        pathType: Prefix
+        backend:
+          service:
+            name: shopping-server
+            port: 
+              number: 8091
+      - path: /management
+        pathType: Prefix
+        backend:
+          service:
+            name: management-webclient
+            port: 
+              number: 80
+      - path: /manserver
+        pathType: Prefix
+        backend:
+          service:
+            name: management-server
+            port: 
+              number: 8092
+            
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  namespace: gic-asenhoradosaneis
+  name: strip-kong
+spec:
+  stripPrefixRegex:
+    regex:
+      - "^/[^/]+"

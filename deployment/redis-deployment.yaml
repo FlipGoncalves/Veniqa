@@ -1,0 +1,135 @@
+
+
+
+
+# # Create Redis2 deployment
+# ---
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: redis-2-server
+#   namespace: gic-asenhoradosaneis
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: redis-2-server
+#   strategy: {}
+#   template:
+#     metadata:
+#       labels:
+#         app: redis-2-server
+#     spec:
+#       containers:
+#       - name: redis-2-server
+#         image: registry.deti/gic-asenhoradosaneis/redis-2:v1
+#         ports:
+#           - name: redis-2-server
+#             containerPort: 8379
+#         env:
+#         - name: REDIS_REPLICATION_MODE
+#           valueFrom:
+#             secretKeyRef:
+#               name: redis-2-secret
+#               key: REDIS_REPLICATION_MODE
+#         volumeMounts:
+#           - name: redis-2-static
+#             mountPath: /data
+#           - name: redis-2-secret
+#             mountPath: "/tmp/redis-secrets"
+#             readOnly: true
+#       restartPolicy: Always
+#       volumes:  
+#         - name: redis-2-static
+#           persistentVolumeClaim:
+#             claimName: redis-2-static-pvc
+#         - name: redis-2-secret
+#           secret:
+#             secretName: redis-2-secret
+
+
+
+
+
+# # Create Service for Redis
+# ---
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: redis-2-server
+#   namespace: gic-asenhoradosaneis
+# spec:
+#   selector:
+#     app: redis-2-server
+#   ports:
+#     - port: 8000
+#       targetPort: 8379
+
+
+
+
+
+
+
+# Create Redis deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: redis-server
+    spec:
+      containers:
+      - name: redis-server
+        image: registry.deti/gic-asenhoradosaneis/redis:v2
+        ports:
+          - name: redis-server
+            containerPort: 8379
+        env:
+        - name: REDIS_REPLICATION_MODE
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_REPLICATION_MODE
+        volumeMounts:
+          - name: redis-static
+            mountPath: /data
+          - name: redis-secret
+            mountPath: "/tmp/redis-secrets"
+            readOnly: true
+      restartPolicy: Always
+      volumes:  
+        - name: redis-static
+          persistentVolumeClaim:
+            claimName: redis-static-pvc
+        - name: redis-secret
+          secret:
+            secretName: redis-secret
+
+
+
+
+
+# Create Service for Redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-server
+  namespace: gic-asenhoradosaneis
+spec:
+  selector:
+    app: redis-server
+  ports:
+    - port: 6000
+      targetPort: 6379
