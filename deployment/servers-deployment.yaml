@@ -6,7 +6,7 @@ metadata:
   name: management-server
   namespace: gic-asenhoradosaneis
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: management-server
@@ -76,7 +76,7 @@ spec:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
               matchLabels:
-                app: management-webclient
+                app: management-server
 
 # Create Shopping Server deployment
 ---
@@ -86,7 +86,7 @@ metadata:
   name: shopping-server
   namespace: gic-asenhoradosaneis
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: shopping-server
@@ -156,7 +156,7 @@ spec:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
               matchLabels:
-                app: shopping-webclient
+                app: shopping-server
 
 # Create Service for Management Server
 ---
@@ -167,7 +167,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 8092
+  - port: 80
     targetPort: 3000
   selector:
     app: management-server
@@ -181,7 +181,59 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 8091
+  - port: 80
     targetPort: 3000
   selector:
     app: shopping-server
+
+# Configure Traefik for Management
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: management-gic-asenhoradosaneis-k3s
+  namespace: gic-asenhoradosaneis
+  annotations:
+    spec.ingressClassName: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+spec:
+  rules:
+  - host: management.gic-asenhoradosaneis.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: management-server
+            port: 
+              number: 80
+
+# Configure Traefik for Shopping
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: shopping-gic-asenhoradosaneis-k3s
+  namespace: gic-asenhoradosaneis
+  annotations:
+    spec.ingressClassName: traefik
+    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+spec:
+  rules:
+  - host: shopping.gic-asenhoradosaneis.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: shopping-server
+            port: 
+              number: 80

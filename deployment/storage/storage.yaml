@@ -1,18 +1,5 @@
-# Create Storage for MongoDB
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: mongodb-static-pvc
-  namespace: gic-asenhoradosaneis
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: longhorn
-  resources:
-    requests:
-      storage: 50Mi
-
 # Create Storage for Redis
+---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -20,7 +7,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:
@@ -36,6 +23,21 @@ metadata:
 spec:
   accessModes:
     - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 50Mi
+
+# Create Storage for MongoDB
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mongodb-static-pvc
+  namespace: gic-asenhoradosaneis
+spec:
+  accessModes:
+    - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:

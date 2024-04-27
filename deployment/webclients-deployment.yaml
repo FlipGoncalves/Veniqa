@@ -6,7 +6,7 @@ metadata:
   name: management-webclient
   namespace: gic-asenhoradosaneis
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: management-webclient
@@ -32,7 +32,7 @@ spec:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
               matchLabels:
-                app: management-webclient
+                app: management-server
 
 # Create Shopping WebClient deployment
 ---
@@ -42,7 +42,7 @@ metadata:
   name: shopping-webclient
   namespace: gic-asenhoradosaneis
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: shopping-webclient
@@ -68,7 +68,7 @@ spec:
           - topologyKey: kubernetes.io/hostname
             labelSelector:
               matchLabels:
-                app: shopping-webclient
+                app: shopping-server
 
 # Create Service for Management WebClient
 ---
@@ -131,13 +131,6 @@ spec:
             name: shopping-webclient
             port: 
               number: 80
-      - path: /shoserver
-        pathType: Prefix
-        backend:
-          service:
-            name: shopping-server
-            port: 
-              number: 8091
       - path: /management
         pathType: Prefix
         backend:
@@ -145,13 +138,6 @@ spec:
             name: management-webclient
             port: 
               number: 80
-      - path: /manserver
-        pathType: Prefix
-        backend:
-          service:
-            name: management-server
-            port: 
-              number: 8092
             
 ---
 apiVersion: traefik.containo.us/v1alpha1
