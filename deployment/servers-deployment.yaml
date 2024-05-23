@@ -20,6 +20,13 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/management-server
         ports:
           - containerPort: 3000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "800Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1000Mi"
         env:
         - name: VENIQA_MONGODB_DB
           valueFrom:
@@ -100,6 +107,13 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/shopping-server
         ports:
           - containerPort: 3000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "800Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1000Mi"
         env:
         - name: VENIQA_MONGODB_DB
           valueFrom:
@@ -237,3 +251,33 @@ spec:
             name: shopping-server
             port: 
               number: 80
+
+# Create Horizontal Pod Autoscaler for Management
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: management-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: management-server
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+
+# Create Horizontal Pod Autoscaler for Shopping
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: shopping-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: shopping-server
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75

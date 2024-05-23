@@ -20,13 +20,16 @@ spec:
         image: registry.deti/gic-asenhoradosaneis/wordpress
         resources:
           requests:
-            cpu: 100m
-            memory: 100Mi
+            cpu: "100m"
+            memory: "200Mi"
+          limits:
+            cpu: "300m"
+            memory: "500Mi"
         imagePullPolicy: Always
         ports:
           - containerPort: 8080
 
-# Create Service for Nginx
+# Create Service for Wordpress
 ---
 apiVersion: v1
 kind: Service
@@ -39,3 +42,18 @@ spec:
     targetPort: 8080
   selector:
     app: wordpress
+
+# Create Horizontal Pod Autoscaler for Wordpress
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: wordpress-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: wordpress
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 75
