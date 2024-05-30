@@ -181,8 +181,10 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 80
+  - protocol: TCP
+    port: 80
     targetPort: 3000
+  type: LoadBalancer
   selector:
     app: management-server
 
@@ -195,8 +197,10 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   ports:
-  - port: 80
+  - protocol: TCP
+    port: 80
     targetPort: 3000
+  type: LoadBalancer
   selector:
     app: shopping-server
 
@@ -209,8 +213,8 @@ metadata:
   namespace: gic-asenhoradosaneis
   annotations:
     spec.ingressClassName: traefik
-    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    # traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
     traefik.ingress.kubernetes.io/preserve-host: "true"
 spec:
@@ -235,8 +239,8 @@ metadata:
   namespace: gic-asenhoradosaneis
   annotations:
     spec.ingressClassName: traefik
-    traefik.ingress.kubernetes.io/frontend-entry-points: http,https
-    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    # traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
     traefik.ingress.kubernetes.io/preserve-host: "true"
 spec:

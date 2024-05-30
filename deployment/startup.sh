@@ -3,10 +3,10 @@ clear
 echo -- Delete Kubectl --
 kubectl delete -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
 kubectl delete -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
-# kubectl delete -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
+kubectl delete -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 kubectl delete -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
 kubectl delete -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
-# kubectl delete -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
+kubectl delete -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
 echo
 
 while getopts d:h: flag
