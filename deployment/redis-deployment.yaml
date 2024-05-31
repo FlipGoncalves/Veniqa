@@ -1,16 +1,60 @@
+# # # Create Redis deployment
+# # ---
+# # apiVersion: apps/v1
+# # kind: Deployment
+# # metadata:
+# #   name: redis-server
+# #   namespace: gic-asenhoradosaneis
+# # spec:
+# #   replicas: 1
+# #   selector:
+# #     matchLabels:
+# #       app: redis-server
+# #   strategy: {}
+# #   template:
+# #     metadata:
+# #       labels:
+# #         app: redis-server
+# #     spec:
+# #       containers:
+# #       - name: redis-server
+# #         image: registry.deti/gic-asenhoradosaneis/redis:v2
+# #         ports:
+# #           - name: redis-server
+# #             containerPort: 8379
+# #         env:
+# #         - name: REDIS_REPLICATION_MODE
+# #           valueFrom:
+# #             secretKeyRef:
+# #               name: redis-secret
+# #               key: REDIS_REPLICATION_MODE
+# #         volumeMounts:
+# #           - name: redis-static
+# #             mountPath: /data
+# #           - name: redis-secret
+# #             mountPath: "/tmp/redis-secrets"
+# #             readOnly: true
+# #       restartPolicy: Always
+# #       volumes:  
+# #         - name: redis-static
+# #           persistentVolumeClaim:
+# #             claimName: redis-static-pvc
+# #         - name: redis-secret
+# #           secret:
+# #             secretName: redis-secret
+
 # # Create Redis deployment
 # ---
 # apiVersion: apps/v1
-# kind: Deployment
+# kind: StatefulSet
 # metadata:
 #   name: redis-server
 #   namespace: gic-asenhoradosaneis
 # spec:
-#   replicas: 1
+#   replicas: 3
 #   selector:
 #     matchLabels:
 #       app: redis-server
-#   strategy: {}
 #   template:
 #     metadata:
 #       labels:
@@ -18,10 +62,11 @@
 #     spec:
 #       containers:
 #       - name: redis-server
-#         image: registry.deti/gic-asenhoradosaneis/redis:v2
+#         image: "redis:alpine"
+#         args: ["--requirepass", "SOME_PASSWORD"]
 #         ports:
 #           - name: redis-server
-#             containerPort: 8379
+#             containerPort: 6379
 #         env:
 #         - name: REDIS_REPLICATION_MODE
 #           valueFrom:
@@ -43,50 +88,19 @@
 #           secret:
 #             secretName: redis-secret
 
-# Create Redis deployment
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: redis-server
-  namespace: gic-asenhoradosaneis
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: redis-server
-  template:
-    metadata:
-      labels:
-        app: redis-server
-    spec:
-      containers:
-      - name: redis-server
-        image: "redis:alpine"
-        args: ["--requirepass", "SOME_PASSWORD"]
-        ports:
-          - name: redis-server
-            containerPort: 6379
-        env:
-        - name: REDIS_REPLICATION_MODE
-          valueFrom:
-            secretKeyRef:
-              name: redis-secret
-              key: REDIS_REPLICATION_MODE
-        volumeMounts:
-          - name: redis-static
-            mountPath: /data
-          - name: redis-secret
-            mountPath: "/tmp/redis-secrets"
-            readOnly: true
-      restartPolicy: Always
-      volumes:  
-        - name: redis-static
-          persistentVolumeClaim:
-            claimName: redis-static-pvc
-        - name: redis-secret
-          secret:
-            secretName: redis-secret
+# # # Create Service for Redis
+# # ---
+# # apiVersion: v1
+# # kind: Service
+# # metadata:
+# #   name: redis-server
+# #   namespace: gic-asenhoradosaneis
+# # spec:
+# #   selector:
+# #     app: redis-server
+# #   ports:
+# #     - port: 6000
+# #       targetPort: 6379
 
 # # Create Service for Redis
 # ---
@@ -98,24 +112,116 @@ spec:
 # spec:
 #   selector:
 #     app: redis-server
+#   type: LoadBalancer
 #   ports:
-#     - port: 6000
+#     - name: redis-port
+#       protocol: TCP
+#       port: 6379
 #       targetPort: 6379
+#   loadBalancerIP: 192.168.0.204
 
-# Create Service for Redis
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis-server
+  name: redis-replica
   namespace: gic-asenhoradosaneis
 spec:
-  selector:
-    app: redis-server
-  type: LoadBalancer
   ports:
-    - name: redis-port
-      protocol: TCP
-      port: 6379
-      targetPort: 6379
-  loadBalancerIP: 192.168.0.204
+  - port: 6379
+    name: redis-replica
+  selector:
+    app: redis-replica
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-primary
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 6379
+    name: redis-primary
+  selector:
+    app: redis-primary
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-replica
+  namespace: gic-asenhoradosaneis
+spec:
+  serviceName: "redis-replica"
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis-replica
+  template:
+    metadata:
+      labels:
+        app: redis-replica
+    spec:
+      containers:
+      - name: redis-replica
+        image: registry.deti/gic-asenhoradosaneis/redis
+        ports:
+        - containerPort: 6379
+        - containerPort: 26379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: "replica"
+        - name: REDIS_MASTER_HOST
+          value: "redis-primary.gic-asenhoradosaneis"
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis-primary
+  namespace: gic-asenhoradosaneis
+spec:
+  serviceName: "redis-primary"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-primary
+  template:
+    metadata:
+      labels:
+        app: redis-primary
+    spec:
+      containers:
+      - name: redis-primary
+        image: registry.deti/gic-asenhoradosaneis/redis
+        ports:
+        - containerPort: 6379
+        - containerPort: 26379
+        volumeMounts:
+        - name: redis-data
+          mountPath: /data
+        env:
+        - name: REDIS_REPLICATION_MODE
+          value: "master"
+        - name: REDIS_MASTER_HOST
+          value: "redis-primary.gic-asenhoradosaneis"
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi
