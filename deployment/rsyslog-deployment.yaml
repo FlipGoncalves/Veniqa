@@ -1,11 +1,9 @@
-# Create Rsyslog deployment
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rsyslog-deployment
+  name: rsyslog
   namespace: gic-asenhoradosaneis
-  labels:
-    app: rsyslog
 spec:
   replicas: 1
   selector:
@@ -20,81 +18,44 @@ spec:
       - name: rsyslog
         image: registry.deti/gic-asenhoradosaneis/rsyslog:v1
         ports:
-        - containerPort: 5140
-        resources:
-          requests:
-            cpu: "50m"
-            memory: "100Mi"
-          limits:
-            cpu: "200m"
-            memory: "300Mi"
-        imagePullPolicy: Always
-        volumeMounts:
-          - name: rsyslog-static
-            mountPath: "/var/log"
-        volumeMounts:
-        - name: rsyslog-config
-          mountPath: /etc/rsyslog.d
-      restartPolicy: Always
-      terminationGracePeriodSeconds: 30
-      volumes:
-        - name: rsyslog-static
-          persistentVolumeClaim:
-            claimName: rsyslog-static-pvc
-        - name: rsyslog-config
-          configMap:
-            name: rsyslog-d
+        - containerPort: 2514
 
-# Create Service for Rsyslog
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: rsyslog-server
+  name: rsyslog
   namespace: gic-asenhoradosaneis
 spec:
   selector:
-    app: rsyslog-server
-  ports:
-    - port: 5000
-      targetPort: 5140
-
-# Create ConfigMap for Rsyslog
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: rsyslog-d
-  namespace: gic-asenhoradosaneis
-  labels:
     app: rsyslog
-data:
-  filelog.conf: |
-    # http://www.rsyslog.com/doc/
+  ports:
+  - protocol: TCP
+    port: 2514
+    targetPort: 2514
 
-    # Output
-    $template DynaFile,"/var/log/container-%HOSTNAME%.log"
-
-    # Actions
-    *.* -?DynaFile              # one file for every device
-  imtcp.conf: |
-    module(load="imtcp")
-    input(type="imtcp" port="514")
-  imudp.conf: |
-    module(load="imudp")
-    input(type="imudp" port="514")
-
-# Create Horizontal Pod Autoscaler for Wordpress
----
-apiVersion: autoscaling/v1
-kind: HorizontalPodAutoscaler
-metadata:
-  name: rsyslog-hpa
-spec:
-  scaleTargetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: rsyslog
-  minReplicas: 1
-  maxReplicas: 3
-  targetCPUUtilizationPercentage: 75
+# # Configure Traefik for Shopping
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: rsyslog-gic-asenhoradosaneis-k3s
+#   namespace: gic-asenhoradosaneis
+#   annotations:
+#     spec.ingressClassName: traefik
+#     traefik.ingress.kubernetes.io/router.entrypoints: web
+#     # traefik.ingress.kubernetes.io/redirect-entry-point: https
+#     traefik.ingress.kubernetes.io/redirect-permanent: "true"
+#     traefik.ingress.kubernetes.io/preserve-host: "true"
+# spec:
+#   rules:
+#   - host: rsyslog.gic-asenhoradosaneis.k3s
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: rsyslog
+#             port: 
+#               number: 514

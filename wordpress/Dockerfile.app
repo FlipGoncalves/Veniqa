@@ -9,4 +9,6 @@ RUN pip install -r requirements.txt
 COPY app.py app.py
 COPY index.html index.html
 
+EXPOSE 514
+
 ENTRYPOINT ["python3", "app.py"]

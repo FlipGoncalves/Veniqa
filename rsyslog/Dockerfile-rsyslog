@@ -1,10 +1,13 @@
-From ubuntu
-RUN apt update && apt install rsyslog -y
-RUN echo '$ModLoad imudp \n\
-$UDPServerRun 514 \n\
-$ModLoad imtcp \n\
-$InputTCPServerRun 514 \n\
-$template RemoteStore, "/var/log/remote/%$year%/%$Month%/%$Day%/%$Hour%.log" \n\
-:source, !isequal, "localhost" -?RemoteStore \n\
-:source, isequal, "last" ~ ' > /etc/rsyslog.conf
-ENTRYPOINT ["rsyslogd", "-n"]
+# Use an appropriate base image
+FROM alpine:latest
+
+RUN apk update && apk add --no-cache rsyslog rsyslog-relp \
+    && rm -rf /var/cache/apk/*
+
+EXPOSE 2514
+
+# Copy the rsyslog configuration file from the context
+COPY rsyslog.conf /etc/rsyslog.conf
+
+# Command to run rsyslog in the foreground
+CMD ["rsyslogd", "-n", "-f", "/etc/rsyslog.conf"]

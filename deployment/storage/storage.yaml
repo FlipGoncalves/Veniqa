@@ -22,7 +22,7 @@ metadata:
   namespace: gic-asenhoradosaneis
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: longhorn
   resources:
     requests:
