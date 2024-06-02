@@ -31,7 +31,7 @@ fi
 # Wait for the Redis master to be available
 if [ "$REDIS_REPLICATION_MODE" == "replica" ]; then
     echo "Waiting for Redis master to be available..."
-    until redis-cli -h $REDIS_MASTER_HOST -a $REDIS_PASSWORD -p 6379 ping | grep PONG; do
+    until redis-cli -h $REDIS_MASTER_HOST -p 6379 ping | grep PONG; do
         echo "Redis master is not available yet, sleeping..."
         sleep 2
     done
