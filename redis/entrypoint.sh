@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Set default Redis password if not provided
-REDIS_PASSWORD="SOME_PASSWORD"
 FILENAME="/usr/local/bin/sentinel.conf"
 
 # Set up Redis Sentinel

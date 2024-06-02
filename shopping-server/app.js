@@ -44,27 +44,40 @@ import passport from 'passport';
 import passportAuth from './authentication/passportAuth';
 
 /************************************************************* */
+
+console.log("Configure MongoDB");
+
+
 // Establish database connection
 db.dbConnection();
 
 /************************************************************* */
+
+console.log("Configure Redis");
+
 // Redis client
 var redisClient = null;
 
 if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
-  redisClient = redis.createClient(process.env.VENIQA_REDIS_HOST);
+  console.log("development");
+  redisClient = redis.createClient({
+    url: process.env.VENIQA_REDIS_HOST
+  });
 }
 else {
+  console.log("production");
   redisClient = redis.createClient({
-    host: process.env.VENIQA_REDIS_HOST, 
-    port: process.env.VENIQA_REDIS_PORT, 
-    password: process.env.VENIQA_REDIS_PASSWORD, 
-    db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
-    tls: {
-      host: process.env.VENIQA_REDIS_HOST,
-      port: process.env.VENIQA_REDIS_PORT,
-      servername: process.env.VENIQA_REDIS_HOST
-    }
+    url: process.env.VENIQA_REDIS_HOST + ":" + process.env.VENIQA_REDIS_PORT
+    // host: process.env.VENIQA_REDIS_HOST, 
+    // port: process.env.VENIQA_REDIS_PORT, 
+    // pass: process.env.VENIQA_REDIS_PASSWORD, 
+    // servername: process.env.VENIQA_REDIS_HOST,
+    // db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
+    // tls: {
+    //   host: process.env.VENIQA_REDIS_HOST,
+    //   port: process.env.VENIQA_REDIS_PORT,
+    //   servername: process.env.VENIQA_REDIS_HOST
+    // }
   });
 }
 
@@ -72,7 +85,17 @@ redisClient.on('error', err => {
   console.error("Redis encountered an error --> ", err )
 })
 
+redisClient.on('connect', () => {
+  console.log('Redis client connected !!');
+});
+
+redisClient.on('ready', () => {
+  console.log('Redis client is ready !!');
+});
+
 /************************************************************* */
+
+console.log("Configure Views");
 
 var app = express();
 
@@ -80,7 +103,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
+app.use(logger('prod'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -90,6 +113,8 @@ app.use(compression());
 
 /************************************************************* */
 
+console.log("Configure Sessions");
+
 // Configure sessions
 app.use(session({
   genid: (req) => {
@@ -98,8 +123,8 @@ app.use(session({
   store: new RedisStore({
     host: process.env.VENIQA_REDIS_HOST, 
     port: process.env.VENIQA_REDIS_PORT, 
-    pass: process.env.VENIQA_REDIS_PASSWORD, 
-    db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
+    // pass: process.env.VENIQA_REDIS_PASSWORD, 
+    // db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
     client: redisClient
   }),
   secret: process.env.VENIQA_SESSION_SECRET_KEY,
@@ -112,6 +137,8 @@ app.use(session({
     // secure: true, // Set this to true only after veniqa has a ssl enabled site
   }
 }))
+
+console.log("Configure Request Limiter");
 
 /************************************************************* */
 // Configure Request Rate Limiter
@@ -129,6 +156,8 @@ var limiter = new RateLimit({
 
 app.use(limiter);
 
+console.log("Configure Authentication");
+
 /************************************************************* */
 // Configure authentication
 
@@ -138,12 +167,14 @@ app.use(passport.session());
 
 /************************************************************* */
 
+console.log("Configure Cross Origins");
+
 // To Allow cross origin requests originating from selected origins
 var corsOptions = {
-  origin: config.get('allowed_origins'),
+  origin: "*",
   methods: ['GET, POST, OPTIONS, PUT, DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  credentials: false
 }
 
 app.use(cors(corsOptions));
@@ -164,6 +195,8 @@ app.use(function(req, res, next) {
   next(createError(404));
 });
 
+console.log("Error Handling");
+
 // error handler
 app.use(function(err, req, res, next) {
   // set locals, only providing error in development
@@ -174,5 +207,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+console.log("Export");
 
 module.exports = app;

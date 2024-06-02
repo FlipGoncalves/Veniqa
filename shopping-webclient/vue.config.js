@@ -30,17 +30,23 @@ module.exports = {
       .tap(options => Object.assign({}, options, { name: '[name].[ext]' }));
   },
   publicPath: "shopping",
+  // devServer: {
+  //   // open: process.platform === 'darwin',
+  //   host: '0.0.0.0',
+  //   disableHostCheck: true,
+  //   allowedHosts: [
+  //     '*',
+  //   ],
+  //   port: 5201, // CHANGE YOUR PORT HERE!
+  //   // https: false,
+  //   hotOnly: false,
+  // },
   devServer: {
-    // open: process.platform === 'darwin',
-    // host: '0.0.0.0',
-    // disableHostCheck: true,
+    proxy: 'http://shopping.gic-asenhoradosaneis.k3s',
+    host: '0.0.0.0',
+    disableHostCheck: true,
     allowedHosts: [
-      'localhost',
-      'gicveniqa',
-      '127.0.0.1',
+      '*',
     ],
-    port: 5201, // CHANGE YOUR PORT HERE!
-    // https: false,
-    hotOnly: false,
-  },
+  }
 };
