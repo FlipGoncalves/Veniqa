@@ -1,89 +1,89 @@
-# # Create Management Server deployment
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: management-server
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   replicas: 3
-#   selector:
-#     matchLabels:
-#       app: management-server
-#   template:
-#     metadata:
-#       labels:
-#         app: management-server
-#     spec:
-#       containers:
-#       - name: management-server
-#         image: registry.deti/gic-asenhoradosaneis/management-server
-#         ports:
-#           - containerPort: 3000
-#         resources:
-#           requests:
-#             cpu: "500m"
-#             memory: "800Mi"
-#           limits:
-#             cpu: "1000m"
-#             memory: "1000Mi"
-#         env:
-#         - name: VENIQA_MONGODB_DB
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_MONGODB_DB
-#         - name: VENIQA_MONGODB_URL
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_MONGODB_URL
-#         - name: VENIQA_REDIS_HOST
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_REDIS_HOST
-#         - name: VENIQA_REDIS_PORT
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_REDIS_PORT
-#         - name: VENIQA_REDIS_PASSWORD
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_REDIS_PASSWORD
-#         - name: VENIQA_REDIS_DB_NUMBER
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_REDIS_DB_NUMBER
-#         - name: VENIQA_SESSION_SECRET_KEY
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_SESSION_SECRET_KEY
-#         - name: VENIQA_CRYPTO_SECRET_KEY
-#           valueFrom:
-#             secretKeyRef:
-#               name: management-server-secret
-#               key: VENIQA_CRYPTO_SECRET_KEY
-#         volumeMounts:
-#           - name: management-server-secret
-#             mountPath: "/tmp/management-server-secrets"
-#             readOnly: true
-#       volumes:
-#         - name: management-server-secret
-#           secret:
-#             secretName: management-server-secret
-#       restartPolicy: Always
-#       affinity:
-#         podAntiAffinity:
-#           requiredDuringSchedulingIgnoredDuringExecution:
-#           - topologyKey: kubernetes.io/hostname
-#             labelSelector:
-#               matchLabels:
-#                 app: management-server
+# Create Management Server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: management-server
+  template:
+    metadata:
+      labels:
+        app: management-server
+    spec:
+      containers:
+      - name: management-server
+        image: registry.deti/gic-asenhoradosaneis/management-server
+        ports:
+          - containerPort: 3000
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "800Mi"
+          limits:
+            cpu: "1000m"
+            memory: "1000Mi"
+        env:
+        - name: VENIQA_MONGODB_DB
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_DB
+        - name: VENIQA_MONGODB_URL
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_MONGODB_URL
+        - name: VENIQA_REDIS_HOST
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_HOST
+        - name: VENIQA_REDIS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PORT
+        - name: VENIQA_REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_PASSWORD
+        - name: VENIQA_REDIS_DB_NUMBER
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_REDIS_DB_NUMBER
+        - name: VENIQA_SESSION_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_SESSION_SECRET_KEY
+        - name: VENIQA_CRYPTO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: management-server-secret
+              key: VENIQA_CRYPTO_SECRET_KEY
+        volumeMounts:
+          - name: management-server-secret
+            mountPath: "/tmp/management-server-secrets"
+            readOnly: true
+      volumes:
+        - name: management-server-secret
+          secret:
+            secretName: management-server-secret
+      restartPolicy: Always
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: management-server
 
 # Create Shopping Server deployment
 ---
@@ -172,21 +172,71 @@ spec:
               matchLabels:
                 app: shopping-server
 
-# # Create Service for Management Server
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: management-server
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   ports:
-#   - protocol: TCP
-#     port: 80
-#     targetPort: 3000
-#   type: LoadBalancer
-#   selector:
-#     app: management-server
+# Create nginx management server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-management-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-management-server
+    spec:
+      containers:
+        - image: registry.deti/gic-asenhoradosaneis/nginx-management-server
+          name: nginx-management-server
+          ports:
+            - containerPort: 80
+          resources: {}
+
+# Create nginx shopping server deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-shopping-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-shopping-server
+    spec:
+      containers:
+        - image: registry.deti/gic-asenhoradosaneis/nginx-shopping-server
+          name: nginx-shopping-server
+          ports:
+            - containerPort: 80
+          resources: {}
+
+# Create Service for Management Server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+  type: LoadBalancer
+  selector:
+    app: management-server
 
 # Create Service for Shopping Server
 ---
@@ -204,31 +254,59 @@ spec:
   selector:
     app: shopping-server
 
-# # Configure Traefik for Management
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: management-gic-asenhoradosaneis-k3s
-#   namespace: gic-asenhoradosaneis
-#   annotations:
-#     spec.ingressClassName: traefik
-#     traefik.ingress.kubernetes.io/router.entrypoints: web
-#     # traefik.ingress.kubernetes.io/redirect-entry-point: https
-#     traefik.ingress.kubernetes.io/redirect-permanent: "true"
-#     traefik.ingress.kubernetes.io/preserve-host: "true"
-# spec:
-#   rules:
-#   - host: management.gic-asenhoradosaneis.k3s
-#     http:
-#       paths:
-#       - path: /
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: management-server
-#             port: 
-#               number: 80
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-management-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx-management-server
+
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-shopping-server
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx-shopping-server
+
+# Configure Traefik for Management
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: management-gic-asenhoradosaneis-k3s
+  namespace: gic-asenhoradosaneis
+  annotations:
+    spec.ingressClassName: traefik
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/redirect-permanent: "true"
+    traefik.ingress.kubernetes.io/preserve-host: "true"
+spec:
+  rules:
+  - host: management.gic-asenhoradosaneis.k3s
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-management-server
+            port: 
+              number: 80
+
 
 # Configure Traefik for Shopping
 ---
@@ -240,7 +318,6 @@ metadata:
   annotations:
     spec.ingressClassName: traefik
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    # traefik.ingress.kubernetes.io/redirect-entry-point: https
     traefik.ingress.kubernetes.io/redirect-permanent: "true"
     traefik.ingress.kubernetes.io/preserve-host: "true"
 spec:
@@ -252,24 +329,24 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: shopping-server
+            name: nginx-shopping-server
             port: 
               number: 80
 
-# # Create Horizontal Pod Autoscaler for Management
-# ---
-# apiVersion: autoscaling/v1
-# kind: HorizontalPodAutoscaler
-# metadata:
-#   name: management-server-hpa
-# spec:
-#   scaleTargetRef:
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     name: management-server
-#   minReplicas: 3
-#   maxReplicas: 5
-#   targetCPUUtilizationPercentage: 75
+# Create Horizontal Pod Autoscaler for Management
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: management-server-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: management-server
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
 
 # Create Horizontal Pod Autoscaler for Shopping
 ---

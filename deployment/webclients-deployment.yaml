@@ -1,41 +1,41 @@
-# # Create Management WebClient deployment
-# ---
-# apiVersion: apps/v1
-# kind: Deployment
-# metadata:
-#   name: management-webclient
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   replicas: 3
-#   selector:
-#     matchLabels:
-#       app: management-webclient
-#   template:
-#     metadata:
-#       labels:
-#         app: management-webclient
-#     spec:
-#       containers:
-#       - name: management-webclient
-#         image: registry.deti/gic-asenhoradosaneis/management-webclient
-#         resources:
-#           requests:
-#             cpu: "100m"
-#             memory: "200Mi"
-#           limits:
-#             cpu: "300m"
-#             memory: "500Mi"
-#         imagePullPolicy: Always
-#         ports:
-#           - containerPort: 8080
-#       restartPolicy: Always
-#       affinity:
-#         podAffinity:
-#           requiredDuringSchedulingIgnoredDuringExecution:
-#           - topologyKey: kubernetes.io/hostname
-#             labelSelector:
-#               matchLabels:
-#                 app: management-server
+# Create Management WebClient deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: management-webclient
+  template:
+    metadata:
+      labels:
+        app: management-webclient
+    spec:
+      containers:
+      - name: management-webclient
+        image: registry.deti/gic-asenhoradosaneis/management-webclient
+        resources:
+          requests:
+            cpu: "100m"
+            memory: "200Mi"
+          limits:
+            cpu: "300m"
+            memory: "500Mi"
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 8080
+      restartPolicy: Always
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: management-server
 
 # Create Shopping WebClient deployment
 ---
@@ -76,19 +76,44 @@ spec:
               matchLabels:
                 app: shopping-server
 
-# # Create Service for Management WebClient
-# ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: management-webclient
-#   namespace: gic-asenhoradosaneis
-# spec:
-#   ports:
-#   - port: 80                    
-#     targetPort: 8080
-#   selector:
-#     app: management-webclient
+# Create nginx deployment
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-webclient
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: nginx-webclient
+    spec:
+      containers:
+        - image: registry.deti/gic-asenhoradosaneis/nginx-webclient
+          name: nginx-webclient
+          ports:
+            - containerPort: 80
+          resources: {}
+
+# Create Service for Management WebClient
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: management-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80                    
+    targetPort: 8080
+  selector:
+    app: management-webclient
 
 # Create Service for Shopping WebClient
 ---
@@ -103,6 +128,20 @@ spec:
     targetPort: 8080
   selector:
     app: shopping-webclient
+
+# Create Service for Nginx
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-webclient
+  namespace: gic-asenhoradosaneis
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: nginx-webclient
 
 # Configure Traefik
 ---
@@ -126,24 +165,24 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: nginx
+            name: nginx-webclient
             port: 
               number: 80
 
-# # Create Horizontal Pod Autoscaler for Management
-# ---
-# apiVersion: autoscaling/v1
-# kind: HorizontalPodAutoscaler
-# metadata:
-#   name: management-webclient-hpa
-# spec:
-#   scaleTargetRef:
-#     apiVersion: apps/v1
-#     kind: Deployment
-#     name: management-webclient
-#   minReplicas: 3
-#   maxReplicas: 5
-#   targetCPUUtilizationPercentage: 75
+# Create Horizontal Pod Autoscaler for Management
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: management-webclient-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: management-webclient
+  minReplicas: 3
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
 
 # Create Horizontal Pod Autoscaler for Shopping
 ---
@@ -159,47 +198,3 @@ spec:
   minReplicas: 3
   maxReplicas: 5
   targetCPUUtilizationPercentage: 75
-
-
-
-
-
-
-# Create nginx deployment
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: nginx
-  namespace: gic-asenhoradosaneis
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: nginx
-  strategy: {}
-  template:
-    metadata:
-      labels:
-        app: nginx
-    spec:
-      containers:
-        - image: registry.deti/gic-asenhoradosaneis/nginx
-          name: nginx
-          ports:
-            - containerPort: 80
-          resources: {}
-          
-# Create Service for Nginx
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: nginx
-  namespace: gic-asenhoradosaneis
-spec:
-  ports:
-  - port: 80
-    targetPort: 80
-  selector:
-    app: nginx
