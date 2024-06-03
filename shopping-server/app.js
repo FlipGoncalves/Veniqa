@@ -171,10 +171,10 @@ console.log("Configure Cross Origins");
 
 // To Allow cross origin requests originating from selected origins
 var corsOptions = {
-  origin: "*",
+  origin: "http://gic-asenhoradosaneis.k3s",
   methods: ['GET, POST, OPTIONS, PUT, DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: false
+  credentials: true
 }
 
 app.use(cors(corsOptions));

@@ -1,17 +1,26 @@
 import express from 'express';
 import securityController from '../controllers/securityController';
 import HttpStatusCode from 'http-status-codes';
-var router = express.Router();
 import passport from 'passport';
+import cors from 'cors';
+var router = express.Router();
+
+// To Allow cross origin requests originating from selected origins
+var corsOptions = {
+    origin: "http://gic-asenhoradosaneis.k3s",
+    methods: ['GET, POST, OPTIONS, PUT, DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+  }
 
 /* GET Amazon Endpoint. */
-router.get('/', function(req, res, next) {
+router.get('/', cors(corsOptions), function(req, res, next) {
     res.render('index', { title: 'Veniqa Security' });
 });
 
-router.route('/signup').post(securityController.signup);
+router.route('/signup', cors(corsOptions)).post(securityController.signup);
 
-router.post('/login', passport.authenticate('login'), (req, res, next) => {
+router.post('/login', cors(corsOptions), passport.authenticate('login'), (req, res, next) => {
     // If this part gets executed, it means authentication was successful
     // Regenerating a new session ID after the user is authenticated
     let temp = req.session.passport;
@@ -29,11 +38,11 @@ router.post('/login', passport.authenticate('login'), (req, res, next) => {
     });
 })
 
-router.get('/isLoggedIn', (req, res, next) => {
+router.get('/isLoggedIn', cors(corsOptions), (req, res, next) => {
     return res.status(HttpStatusCode.OK).send(req.isAuthenticated())
 })
 
-router.get('/logout', (req, res, next) => {
+router.get('/logout', cors(corsOptions), (req, res, next) => {
     req.logout();
     if (req.session) {
         req.session.destroy((err) => {
@@ -53,14 +62,14 @@ router.get('/logout', (req, res, next) => {
     }
 });
 
-router.route('/resendEmailAddressConfirmationLink').get(securityController.resendEmailAddressConfirmationLink)
+router.route('/resendEmailAddressConfirmationLink', cors(corsOptions)).get(securityController.resendEmailAddressConfirmationLink)
 
-router.route('/confirmEmailAddress/:token').get(securityController.confirmEmailAddress);
+router.route('/confirmEmailAddress/:token', cors(corsOptions)).get(securityController.confirmEmailAddress);
 
-router.route('/forgotPassword').get(securityController.forgotPassword);
+router.route('/forgotPassword', cors(corsOptions)).get(securityController.forgotPassword);
 
-router.route('/validatePasswordResetToken/:token').get(securityController.validatePasswordResetToken);
+router.route('/validatePasswordResetToken/:token', cors(corsOptions)).get(securityController.validatePasswordResetToken);
 
-router.route('/resetPassword').post(securityController.resetPassword);
+router.route('/resetPassword', cors(corsOptions)).post(securityController.resetPassword);
 
 module.exports = router;

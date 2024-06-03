@@ -1,38 +1,48 @@
 import express from 'express';
 import orderController from '../controllers/orderController';
 import passportAuth from '../authentication/passportAuth';
+import cors from 'cors';
 var router = express.Router();
+
+
+// To Allow cross origin requests originating from selected origins
+var corsOptions = {
+  origin: config.get('allowed_origins'),
+  methods: ['GET, POST, OPTIONS, PUT, DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}
 
 router.use(passportAuth.isAuthenticated);
 
-router.get('/', function(req, res, next) {
+router.get('/', cors(corsOptions), function(req, res, next) {
     res.render('index', { title: 'Veniqa Orders' });
 });
 
-router.post('/orderList', passportAuth.canViewOrders, orderController.getOrderList);
+router.post('/orderList', cors(corsOptions), passportAuth.canViewOrders, orderController.getOrderList);
 
-router.get('/order', passportAuth.canViewOrders, orderController.getOrderDetails);
+router.get('/order', cors(corsOptions), passportAuth.canViewOrders, orderController.getOrderDetails);
 
-router.post('/confirmOrder', passportAuth.canManageOrders, orderController.confirmOrder);
+router.post('/confirmOrder', cors(corsOptions), passportAuth.canManageOrders, orderController.confirmOrder);
 
-router.post('/cancelOrder', passportAuth.canManageOrders, orderController.cancelOrder);
+router.post('/cancelOrder', cors(corsOptions), passportAuth.canManageOrders, orderController.cancelOrder);
 
-router.post('/markItemAsFulfilling', passportAuth.canManageOrders, orderController.markItemAsFulfilling);
+router.post('/markItemAsFulfilling', cors(corsOptions), passportAuth.canManageOrders, orderController.markItemAsFulfilling);
 
-router.post('/markItemAsShipped', passportAuth.canManageOrders, orderController.markItemAsShipped);
+router.post('/markItemAsShipped', cors(corsOptions), passportAuth.canManageOrders, orderController.markItemAsShipped);
 
-router.post('/markItemAsDelivered', passportAuth.canManageOrders, orderController.markItemAsDelivered);
+router.post('/markItemAsDelivered', cors(corsOptions), passportAuth.canManageOrders, orderController.markItemAsDelivered);
 
-router.put('/updateOrderFulfillmentDetails', passportAuth.canManageOrders, orderController.updateOrderFulfillmentDetails);
+router.put('/updateOrderFulfillmentDetails', cors(corsOptions), passportAuth.canManageOrders, orderController.updateOrderFulfillmentDetails);
 
-router.put('/updateShipmentDetails', passportAuth.canManageOrders, orderController.updateShipmentDetails);
+router.put('/updateShipmentDetails', cors(corsOptions), passportAuth.canManageOrders, orderController.updateShipmentDetails);
 
-router.put('/updateDeliveryDetails', passportAuth.canManageOrders, orderController.updateDeliveryDetails);
+router.put('/updateDeliveryDetails', cors(corsOptions), passportAuth.canManageOrders, orderController.updateDeliveryDetails);
 
-router.post('/addComment', passportAuth.canManageOrders, orderController.addComment);
+router.post('/addComment', cors(corsOptions), passportAuth.canManageOrders, orderController.addComment);
 
-router.put('/editComment', passportAuth.canManageOrders, orderController.editComment);
+router.put('/editComment', cors(corsOptions), passportAuth.canManageOrders, orderController.editComment);
 
-router.delete('/deleteComment', passportAuth.canManageOrders, orderController.deleteComment);
+router.delete('/deleteComment', cors(corsOptions), passportAuth.canManageOrders, orderController.deleteComment);
 
 module.exports = router;

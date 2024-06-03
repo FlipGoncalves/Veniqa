@@ -1,8 +1,17 @@
 import express from 'express';
 import passportAuth from '../authentication/passportAuth';
 import referenceDataController from '../controllers/referenceDataController';
-
+import cors from 'cors';
 var router = express.Router();
+
+
+// To Allow cross origin requests originating from selected origins
+var corsOptions = {
+  origin: config.get('allowed_origins'),
+  methods: ['GET, POST, OPTIONS, PUT, DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}
 
 
 /* GET Reference Data Endpoint. */
@@ -12,28 +21,28 @@ router.get('/', function(req, res, next) {
 
 router.use(passportAuth.isAuthenticated);
 
-router.get('/getCatalogBundle', referenceDataController.getCatalogBundle);
+router.get('/getCatalogBundle', cors(corsOptions), referenceDataController.getCatalogBundle);
 
-router.get('/getStores', referenceDataController.getStores);
+router.get('/getStores', cors(corsOptions), referenceDataController.getStores);
 
-router.get('/getRoles', referenceDataController.getRoles);
+router.get('/getRoles', cors(corsOptions), referenceDataController.getRoles);
 
-router.get('/getWeightUnits', referenceDataController.getWeightUnits);
+router.get('/getWeightUnits', cors(corsOptions), referenceDataController.getWeightUnits);
 
-router.get('/productCategoryList', passportAuth.canViewCategories, referenceDataController.getProductCategoryList);
+router.get('/productCategoryList', cors(corsOptions), passportAuth.canViewCategories, referenceDataController.getProductCategoryList);
 
-router.post('/productCategory', passportAuth.canManageCategories, referenceDataController.addProductCategory);
+router.post('/productCategory', cors(corsOptions), passportAuth.canManageCategories, referenceDataController.addProductCategory);
 
-router.get('/productCategory', passportAuth.canViewCategories, referenceDataController.getProductCategory);
+router.get('/productCategory', cors(corsOptions), passportAuth.canViewCategories, referenceDataController.getProductCategory);
 
-router.put('/productCategory', passportAuth.canManageCategories, referenceDataController.updateProductCategory);
+router.put('/productCategory', cors(corsOptions), passportAuth.canManageCategories, referenceDataController.updateProductCategory);
 
-router.get('/tariffList', passportAuth.canViewTariff, referenceDataController.getTariffList);
+router.get('/tariffList', cors(corsOptions), passportAuth.canViewTariff, referenceDataController.getTariffList);
 
-router.post('/tariff', passportAuth.canManageTariff, referenceDataController.addTariffCategory);
+router.post('/tariff', cors(corsOptions), passportAuth.canManageTariff, referenceDataController.addTariffCategory);
 
-router.get('/tariff', passportAuth.canViewTariff, referenceDataController.getTariffCategory);
+router.get('/tariff', cors(corsOptions), passportAuth.canViewTariff, referenceDataController.getTariffCategory);
 
-router.put('/tariff', passportAuth.canManageTariff, referenceDataController.updateTariffCategory);
+router.put('/tariff', cors(corsOptions), passportAuth.canManageTariff, referenceDataController.updateTariffCategory);
 
 module.exports = router;
