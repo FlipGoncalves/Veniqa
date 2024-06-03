@@ -1,13 +1,17 @@
-# Use an appropriate base image
-FROM alpine:latest
+# Start with a minimal base image
+FROM ubuntu:latest
 
-RUN apk update && apk add --no-cache rsyslog rsyslog-relp \
-    && rm -rf /var/cache/apk/*
+# Install rsyslog and necessary dependencies
+RUN apt-get update && \
+    apt-get install -y rsyslog && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-EXPOSE 2514
-
-# Copy the rsyslog configuration file from the context
+# Copy rsyslog configuration file into the container
 COPY rsyslog.conf /etc/rsyslog.conf
 
-# Command to run rsyslog in the foreground
-CMD ["rsyslogd", "-n", "-f", "/etc/rsyslog.conf"]
+# Expose ports for rsyslog
+EXPOSE 514/udp 514/tcp
+
+# Set the command to start rsyslog
+CMD ["rsyslogd", "-n"]

@@ -42,8 +42,14 @@ cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-ase
 echo -- Rsyslog --
 cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
 
-echo -- Nginx --
-cd /vagrant/nginx && docker build -f Dockerfile.nginx -t registry.deti/gic-asenhoradosaneis/nginx . && docker push registry.deti/gic-asenhoradosaneis/nginx -q
+echo -- Nginx Management Server --
+cd /vagrant/nginx && docker build -f Dockerfile-management -t registry.deti/gic-asenhoradosaneis/nginx-management-server . && docker push registry.deti/gic-asenhoradosaneis/nginx-management-server -q
+
+echo -- Nginx Shopping Server --
+cd /vagrant/nginx&& docker build -f Dockerfile-shopping -t registry.deti/gic-asenhoradosaneis/nginx-shopping-server . && docker push registry.deti/gic-asenhoradosaneis/nginx-shopping-server -q
+
+echo -- Nginx Webclient --
+cd /vagrant/nginx && docker build -f Dockerfile-webclient -t registry.deti/gic-asenhoradosaneis/nginx-webclient . && docker push registry.deti/gic-asenhoradosaneis/nginx-webclient -q
 
 echo -- Secrets --
 chmod 777 /vagrant/deployment/secrets.sh
