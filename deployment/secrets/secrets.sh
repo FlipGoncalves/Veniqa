@@ -2,8 +2,8 @@ kubectl create secret generic shopping-server-secret \
     --from-literal=NODE_ENV=production \
     --from-literal=VENIQA_ENV=local \
     --from-literal=VENIQA_MONGODB_DB=veniqa-prod-db \
-    --from-literal=VENIQA_MONGODB_URL=mongodb://mongodb-server.gic-asenhoradosaneis:27000/veniqa-prod-db \
-    --from-literal=VENIQA_REDIS_HOST=redis://redis-server.gic-asenhoradosaneis \
+    --from-literal=VENIQA_MONGODB_URL=mongodb://mongodb-1.mongodb.gic-asenhoradosaneis:27017/veniqa-prod-db \
+    --from-literal=VENIQA_REDIS_HOST=redis://redis-primary.gic-asenhoradosaneis \
     --from-literal=VENIQA_REDIS_PORT=6379 \
     --from-literal=VENIQA_REDIS_PASSWORD=SOME_PASSWORD \
     --from-literal=VENIQA_REDIS_DB_NUMBER=0 \
