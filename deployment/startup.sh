@@ -20,6 +20,9 @@ do
 done
 echo
 
+echo -- Rsyslog --
+cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
+
 echo -- Shopping WebClient --
 cd /vagrant/shopping-webclient && docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . && docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
 
@@ -41,9 +44,6 @@ cd /vagrant/redis && docker build -t  registry.deti/gic-asenhoradosaneis/redis:v
 echo -- Wordpress --
 cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . && docker push registry.deti/gic-asenhoradosaneis/wordpress -q
 
-echo -- Rsyslog --
-cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
-
 echo -- Nginx Management Server --
 cd /vagrant/nginx && docker build -f Dockerfile-management -t registry.deti/gic-asenhoradosaneis/nginx-management-server . && docker push registry.deti/gic-asenhoradosaneis/nginx-management-server -q
 
@@ -54,14 +54,14 @@ echo -- Nginx Webclient --
 cd /vagrant/nginx && docker build -f Dockerfile-webclient -t registry.deti/gic-asenhoradosaneis/nginx-webclient . && docker push registry.deti/gic-asenhoradosaneis/nginx-webclient -q
 
 echo -- Secrets --
-chmod 777 /vagrant/deployment/secrets.sh
-./vagrant/deployment/secrets.sh
+chmod 777 ./secrets/secrets.sh
+./secrets/secrets.sh
 
 echo -- Apply Kubectl --
+kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/storage/storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
