@@ -8,7 +8,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy rsyslog configuration file into the container
-COPY rsyslog.conf /etc/rsyslog.conf
+# COPY rsyslog.conf /etc/rsyslog.conf
 
 # Expose ports for rsyslog
 EXPOSE 514/udp 514/tcp
