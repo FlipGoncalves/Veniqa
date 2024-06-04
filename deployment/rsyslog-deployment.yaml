@@ -62,10 +62,18 @@ data:
     module(load="imtcp")
     input(type="imtcp" port="514")
 
+    module(load="imuxsock")             # for local system logging
+
+    local0.* /var/log/mongodb.log
+    local1.* /var/log/redis.log
+    local2.* /var/log/webclients.log
+    local3.* /var/log/shopping-server.log
+    local4.* /var/log/management-server.log
+
     *.* /var/log/syslog.log
 
-    $template RemoteLogs,"/var/log/%HOSTNAME%/%PROGRAMNAME%.log"
-    *.* ?RemoteLogs
+    # $template RemoteLogs,"/var/log/%HOSTNAME%.log"
+    # *.* ?RemoteLogs
     stop
 
 # # Configure Traefik for Shopping

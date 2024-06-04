@@ -28,6 +28,9 @@ spec:
           mountPath: /config
         - name: mongodb-data
           mountPath: /data/db
+        env:
+        - name: SYSLOG_HOST
+          value: "rsyslog.gic-asenhoradosaneis"
         ports:
         - name: mongodb
           containerPort: 27017
@@ -116,3 +119,6 @@ data:
       bindIp: 0.0.0.0
     replication:
       replSetName: rs0
+    systemLog:
+      destination: syslog
+      syslogFacility: local0
