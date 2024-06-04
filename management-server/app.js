@@ -47,23 +47,31 @@ import passportAuth from './authentication/passportAuth';
 db.dbConnection();
 
 /************************************************************* */
+console.log("Configure Redis");
+
 // Redis client
 var redisClient = null;
 
 if (process.env.NODE_ENV && process.env.NODE_ENV === 'development') {
-  redisClient = redis.createClient(process.env.VENIQA_REDIS_HOST);
+  console.log("development");
+  redisClient = redis.createClient({
+    url: process.env.VENIQA_REDIS_HOST
+  });
 }
 else {
+  console.log("production");
   redisClient = redis.createClient({
-    host: process.env.VENIQA_REDIS_HOST, 
-    port: process.env.VENIQA_REDIS_PORT, 
-    password: process.env.VENIQA_REDIS_PASSWORD, 
-    db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
-    tls: {
-      host: process.env.VENIQA_REDIS_HOST,
-      port: process.env.VENIQA_REDIS_PORT,
-      servername: process.env.VENIQA_REDIS_HOST
-    }
+    url: process.env.VENIQA_REDIS_HOST + ":" + process.env.VENIQA_REDIS_PORT
+    // host: process.env.VENIQA_REDIS_HOST, 
+    // port: process.env.VENIQA_REDIS_PORT, 
+    // pass: process.env.VENIQA_REDIS_PASSWORD, 
+    // servername: process.env.VENIQA_REDIS_HOST,
+    // db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
+    // tls: {
+    //   host: process.env.VENIQA_REDIS_HOST,
+    //   port: process.env.VENIQA_REDIS_PORT,
+    //   servername: process.env.VENIQA_REDIS_HOST
+    // }
   });
 }
 
@@ -71,6 +79,14 @@ else {
 redisClient.on('error', err => {
   console.error("Redis encountered an error --> ", err )
 })
+
+redisClient.on('connect', () => {
+  console.log('Redis client connected !!');
+});
+
+redisClient.on('ready', () => {
+  console.log('Redis client is ready !!');
+});
 /************************************************************* */
 
 var app = express();
@@ -88,6 +104,7 @@ app.use(helmet());
 app.use(compression());
 
 /************************************************************* */
+console.log("Configure Sessions");
 
 // Configure sessions
 app.use(session({
@@ -112,6 +129,7 @@ app.use(session({
   }
 }))
 
+console.log("Configure Request Limiter");
 /************************************************************* */
 // Configure Request Rate Limiter
 
@@ -127,6 +145,7 @@ var limiter = new RateLimit({
 })
 
 app.use(limiter);
+console.log("Configure Authentication");
 
 /************************************************************* */
 // Configure authentication
@@ -136,6 +155,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 /************************************************************* */
+
+console.log("Configure Cross Origins");
 
 // To Allow cross origin requests originating from selected origins
 var corsOptions = {
@@ -161,6 +182,7 @@ app.use('/ui', uiRouter);
 app.use(function(req, res, next) {
   next(createError(404));
 });
+console.log("Error Handling");
 
 // error handler
 app.use(function(err, req, res, next) {
@@ -172,5 +194,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+console.log("Export");
 
 module.exports = app;
