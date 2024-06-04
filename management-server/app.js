@@ -43,6 +43,8 @@ import passport from 'passport';
 import passportAuth from './authentication/passportAuth';
 
 /************************************************************* */
+console.log("Database Connection");
+
 // Establish database connection
 db.dbConnection();
 
@@ -114,8 +116,8 @@ app.use(session({
   store: new RedisStore({
     host: process.env.VENIQA_REDIS_HOST, 
     port: process.env.VENIQA_REDIS_PORT, 
-    pass: process.env.VENIQA_REDIS_PASSWORD, 
-    db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
+    // pass: process.env.VENIQA_REDIS_PASSWORD, 
+    // db: Number(process.env.VENIQA_REDIS_DB_NUMBER),
     client: redisClient
   }),
   secret: process.env.VENIQA_SESSION_SECRET_KEY,
