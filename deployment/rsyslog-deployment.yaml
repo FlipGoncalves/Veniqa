@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: rsyslog
-        image: registry.deti/gic-asenhoradosaneis/rsyslog:v1
+        image: registry.deti/gic-asenhoradosaneis/rsyslog
         ports:
           - containerPort: 514
             protocol: UDP
@@ -55,6 +55,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: rsyslog-config
+  namespace: gic-asenhoradosaneis
 data:
   rsyslog.conf: |
     module(load="imudp")
@@ -62,42 +63,11 @@ data:
     module(load="imtcp")
     input(type="imtcp" port="514")
 
-    module(load="imuxsock")             # for local system logging
+    local0.* /var/log/gic-asenhoradosaneis-mongodb.log
+    local1.* /var/log/gic-asenhoradosaneis-redis.log
+    local2.* /var/log/gic-asenhoradosaneis-webclients.log
+    local3.* /var/log/gic-asenhoradosaneis-shopping-server.log
+    local4.* /var/log/gic-asenhoradosaneis-management-server.log
 
-    local0.* /var/log/mongodb.log
-    local1.* /var/log/redis.log
-    local2.* /var/log/webclients.log
-    local3.* /var/log/shopping-server.log
-    local4.* /var/log/management-server.log
-
-    *.* /var/log/syslog.log
-
-    # $template RemoteLogs,"/var/log/%HOSTNAME%.log"
-    # *.* ?RemoteLogs
+    *.* /var/log/gic-asenhoradosaneis-syslog.log
     stop
-
-# # Configure Traefik for Shopping
-# ---
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: rsyslog-gic-asenhoradosaneis-k3s
-#   namespace: gic-asenhoradosaneis
-#   annotations:
-#     spec.ingressClassName: traefik
-#     traefik.ingress.kubernetes.io/router.entrypoints: web
-#     # traefik.ingress.kubernetes.io/redirect-entry-point: https
-#     traefik.ingress.kubernetes.io/redirect-permanent: "true"
-#     traefik.ingress.kubernetes.io/preserve-host: "true"
-# spec:
-#   rules:
-#   - host: rsyslog.gic-asenhoradosaneis.k3s
-#     http:
-#       paths:
-#       - path: /
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: rsyslog
-#             port: 
-#               number: 514

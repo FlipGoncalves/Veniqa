@@ -11,6 +11,8 @@ kubectl delete -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhora
 kubectl delete -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
 echo
 
+sleep 5
+
 while getopts d:h: flag
 do
     case "${flag}" in
@@ -21,7 +23,7 @@ done
 echo
 
 echo -- Rsyslog --
-cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog:v1 -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog:v1 -q
+cd /vagrant/rsyslog && docker build -t registry.deti/gic-asenhoradosaneis/rsyslog -f Dockerfile-rsyslog . && docker push registry.deti/gic-asenhoradosaneis/rsyslog -q
 
 echo -- Shopping WebClient --
 cd /vagrant/shopping-webclient && docker build -t registry.deti/gic-asenhoradosaneis/shopping-webclient . && docker push registry.deti/gic-asenhoradosaneis/shopping-webclient -q
@@ -39,7 +41,7 @@ echo -- MongoDB --
 cd /vagrant/mongo && docker build -t registry.deti/gic-asenhoradosaneis/mongodb -f Dockerfile-mongo . && docker push registry.deti/gic-asenhoradosaneis/mongodb -q
 
 echo -- Redis --
-cd /vagrant/redis && docker build -t  registry.deti/gic-asenhoradosaneis/redis:v2 -f Dockerfile . && docker push registry.deti/gic-asenhoradosaneis/redis:v1 -q
+cd /vagrant/redis && docker build -t  registry.deti/gic-asenhoradosaneis/redis -f Dockerfile . && docker push registry.deti/gic-asenhoradosaneis/redis -q
 
 echo -- Wordpress --
 cd /vagrant/wordpress && docker build -f Dockerfile.app -t registry.deti/gic-asenhoradosaneis/wordpress . && docker push registry.deti/gic-asenhoradosaneis/wordpress -q
@@ -54,14 +56,16 @@ echo -- Nginx Webclient --
 cd /vagrant/nginx && docker build -f Dockerfile-webclient -t registry.deti/gic-asenhoradosaneis/nginx-webclient . && docker push registry.deti/gic-asenhoradosaneis/nginx-webclient -q
 
 echo -- Secrets --
-chmod 777 ./secrets/secrets.sh
-./secrets/secrets.sh
+chmod 777 /vagrant/deployment/secrets/secrets.sh
+/vagrant/deployment/secrets/secrets.sh
 
 echo -- Apply Kubectl --
 kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
+sleep 3
 kubectl apply -f /vagrant/deployment/storage/storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
+kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis

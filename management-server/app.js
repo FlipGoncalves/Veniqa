@@ -97,7 +97,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
-app.use(logger('dev'));
+app.use(logger('prod'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -162,7 +162,7 @@ console.log("Configure Cross Origins");
 
 // To Allow cross origin requests originating from selected origins
 var corsOptions = {
-  origin: config.get('allowed_origins'),
+  origin: "http://gic-asenhoradosaneis.k3s",
   methods: ['GET, POST, OPTIONS, PUT, DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

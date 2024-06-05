@@ -212,11 +212,17 @@ spec:
         volumeMounts:
         - name: redis-data
           mountPath: /data
+        # - name: config-volume
+        #   mountPath: /redis-master
         env:
         - name: REDIS_REPLICATION_MODE
           value: "master"
         - name: REDIS_MASTER_HOST
           value: "redis-primary.gic-asenhoradosaneis"
+      # volumes:
+      # - name: config-volume
+      #   configMap:
+      #     name: redis-config
   volumeClaimTemplates:
   - metadata:
       name: redis-data
@@ -225,3 +231,19 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: redis-config
+#   namespace: gic-asenhoradosaneis
+# data:
+#   redis.conf: |
+#     logfile /dev/stdout
+#     loglevel notice
+#     syslog-enabled yes
+#     syslog-ident redis-primary
+#     syslog-facility local1
+#     bind 0.0.0.0
+#     port 6379
