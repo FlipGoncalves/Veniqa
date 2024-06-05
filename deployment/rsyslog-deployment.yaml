@@ -62,6 +62,14 @@ data:
     input(type="imudp" port="514")
     module(load="imtcp")
     input(type="imtcp" port="514")
+    module(load="imuxsock") # provides support for local system logging (e.g. via logger command)
+    module(load="imklog") # provides kernel logging support
+
+    $ActionSendTCPRebindInterval (>= 4.5.1)
+    $ActionSendUDPRebindInterval (>= 4.3.2)
+
+    # where to send the log
+    *.* @rsyslog.gic-asenhoradosaneis:514 # Forward logs to the rsyslog service
 
     local0.* /var/log/gic-asenhoradosaneis-mongodb.log
     local1.* /var/log/gic-asenhoradosaneis-redis.log
@@ -71,3 +79,27 @@ data:
 
     *.* /var/log/gic-asenhoradosaneis-syslog.log
     stop
+
+
+# Create Job for Rsyslog ip change
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rsyslog-ipchange
+  namespace: gic-asenhoradosaneis
+spec:
+  template:
+    spec:
+      containers:
+      - name: rsyslog-ipchange
+        image: bitnami/kubectl:latest
+        command:
+        - "sh"
+        - "-c"
+        - >
+          for pod in $(kubectl get pods -n gic-asenhoradosaneis); 
+          do 
+            sudo kubectl exec $pod -n gic-asenhoradosaneis -- pkill -HUP -f syslog
+          done;
+      restartPolicy: OnFailure

@@ -14,14 +14,14 @@ echo "sentinel parallel-syncs mymaster 1" >> $FILENAME
 # Set up Redis server
 if [ "$REDIS_REPLICATION_MODE" == "master" ]; then
     echo "Starting Redis as master..."
-    redis-server &
+    redis-server /redis-master/redis.conf &
 elif [ "$REDIS_REPLICATION_MODE" == "replica" ]; then
     echo "Starting Redis as replica..."
     if [ -z "$REDIS_MASTER_HOST" ]; then
         echo "Error: REDIS_MASTER_HOST environment variable is not set."
         exit 1
     fi
-    redis-server --replicaof $REDIS_MASTER_HOST 6379 &
+    redis-server /redis-master/redis.conf --replicaof $REDIS_MASTER_HOST 6379 &
 else
     echo "Error: Invalid REDIS_REPLICATION_MODE. Must be 'master' or 'replica'."
     exit 1

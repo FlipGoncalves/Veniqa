@@ -110,6 +110,9 @@ metadata:
   namespace: gic-asenhoradosaneis
 data:
   mongod.conf: |
+    systemLog:
+      destination: syslog
+      logAppend: true
     storage:
       dbPath: /data/db
     net:
