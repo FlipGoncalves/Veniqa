@@ -26,7 +26,7 @@ spec:
             memory: "800Mi"
           limits:
             cpu: "1000m"
-            memory: "1000Mi"
+            memory: "1500Mi"
         env:
         - name: VENIQA_MONGODB_DB
           valueFrom:
@@ -113,7 +113,7 @@ spec:
             memory: "800Mi"
           limits:
             cpu: "1000m"
-            memory: "1000Mi"
+            memory: "1500Mi"
         env:
         - name: VENIQA_MONGODB_DB
           valueFrom:
@@ -172,7 +172,7 @@ spec:
               matchLabels:
                 app: shopping-server
 
-# Create nginx management server deployment
+# Create Nginx Management Server Deployment
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -197,7 +197,7 @@ spec:
             - containerPort: 80
           resources: {}
 
-# Create nginx shopping server deployment
+# Create Nginx Shopping Server Deployment
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -254,7 +254,7 @@ spec:
   selector:
     app: shopping-server
 
-# Create Service for Nginx
+# Create Service for Nginx Management Server
 ---
 apiVersion: v1
 kind: Service
@@ -268,7 +268,7 @@ spec:
   selector:
     app: nginx-management-server
 
-# Create Service for Nginx
+# Create Service for Nginx Shopping Server
 ---
 apiVersion: v1
 kind: Service
@@ -282,7 +282,7 @@ spec:
   selector:
     app: nginx-shopping-server
 
-# Configure Traefik for Management
+# Configure Traefik for Management Server
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -308,7 +308,7 @@ spec:
               number: 80
 
 
-# Configure Traefik for Shopping
+# Configure Traefik for Shopping Server
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -333,7 +333,7 @@ spec:
             port: 
               number: 80
 
-# Create Horizontal Pod Autoscaler for Management
+# Create Horizontal Pod Autoscaler for Management Server
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
@@ -346,9 +346,9 @@ spec:
     name: management-server
   minReplicas: 3
   maxReplicas: 5
-  targetCPUUtilizationPercentage: 75
+  targetCPUUtilizationPercentage: 90
 
-# Create Horizontal Pod Autoscaler for Shopping
+# Create Horizontal Pod Autoscaler for Shopping Server
 ---
 apiVersion: autoscaling/v1
 kind: HorizontalPodAutoscaler
@@ -361,4 +361,4 @@ spec:
     name: shopping-server
   minReplicas: 3
   maxReplicas: 5
-  targetCPUUtilizationPercentage: 75
+  targetCPUUtilizationPercentage: 90

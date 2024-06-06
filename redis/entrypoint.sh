@@ -37,4 +37,6 @@ if [ "$REDIS_REPLICATION_MODE" == "replica" ]; then
     echo "Redis master is available!"
 fi
 
+rsyslogd
+
 exec redis-sentinel $FILENAME

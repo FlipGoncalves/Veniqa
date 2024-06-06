@@ -1,3 +1,4 @@
+# Create Redis Replica Deployment
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -21,14 +22,38 @@ spec:
         ports:
         - containerPort: 6379
         - containerPort: 26379
+        env:
+        - name: REDIS_REPLICATION_MODE
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_REPLICATION_MODE_REPLICA
+        - name: REDIS_MASTER_HOST
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_MASTER_HOST
         volumeMounts:
         - name: redis-data
           mountPath: /data
-        env:
-        - name: REDIS_REPLICATION_MODE
-          value: "replica"
-        - name: REDIS_MASTER_HOST
-          value: "redis-primary.gic-asenhoradosaneis"
+        - name: config-volume
+          mountPath: /redis-master
+        - name: redis-secret
+          mountPath: "/tmp/redis-secret"
+          readOnly: true
+        - name: rsyslog-redis-config
+          mountPath: /etc/rsyslog.conf
+          subPath: rsyslog.conf
+      volumes:
+      - name: config-volume
+        configMap:
+          name: redis-config
+      - name: rsyslog-redis-config
+        configMap:
+          name: rsyslog-redis-config
+      - name: redis-secret
+        secret:
+          secretName: redis-secret
   volumeClaimTemplates:
   - metadata:
       name: redis-data
@@ -38,6 +63,7 @@ spec:
         requests:
           storage: 1Gi
 
+# Create Redis Primary Deployment
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -61,21 +87,38 @@ spec:
         ports:
         - containerPort: 6379
         - containerPort: 26379
+        env:
+        - name: REDIS_REPLICATION_MODE
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_REPLICATION_MODE_PRIMARY
+        - name: REDIS_MASTER_HOST
+          valueFrom:
+            secretKeyRef:
+              name: redis-secret
+              key: REDIS_MASTER_HOST
         volumeMounts:
         - name: redis-data
           mountPath: /data
-        env:
-        - name: REDIS_REPLICATION_MODE
-          value: "master"
-        - name: REDIS_MASTER_HOST
-          value: "redis-primary.gic-asenhoradosaneis"
-        volumeMounts:
         - name: config-volume
           mountPath: /redis-master
+        - name: redis-secret
+          mountPath: "/tmp/redis-secret"
+          readOnly: true
+        - name: rsyslog-redis-config
+          mountPath: /etc/rsyslog.conf
+          subPath: rsyslog.conf
       volumes:
       - name: config-volume
         configMap:
           name: redis-config
+      - name: rsyslog-redis-config
+        configMap:
+          name: rsyslog-redis-config
+      - name: redis-secret
+        secret:
+          secretName: redis-secret
   volumeClaimTemplates:
   - metadata:
       name: redis-data
@@ -85,6 +128,7 @@ spec:
         requests:
           storage: 1Gi
 
+# Create Redis Replica Service
 ---
 apiVersion: v1
 kind: Service
@@ -98,6 +142,7 @@ spec:
   selector:
     app: redis-replica
 
+# Create Redis Primary Service
 ---
 apiVersion: v1
 kind: Service
@@ -111,6 +156,7 @@ spec:
   selector:
     app: redis-primary
 
+# Create ConfigMap for Redis Primary/Replica Service
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -120,9 +166,40 @@ metadata:
 data:
   redis.conf: |
     # Redis configuration
-    logfile /var/log/redis-server.log
-    syslog-enabled yes
-    syslog-ident redis-primary
-    syslog-facility local0
     bind 0.0.0.0
     port 6379
+    protected-mode no
+    daemonize no
+    logfile ""
+    syslog-enabled yes
+    syslog-ident redis-primary
+    syslog-facility local1
+    loglevel debug
+    dir /data
+
+# Create ConfigMap for Rsyslog Client to send Logs
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsyslog-redis-config
+  namespace: gic-asenhoradosaneis
+data:
+  rsyslog.conf: |
+      module(load="imuxsock")  # provides support for local system logging (e.g., via logger command)
+      module(load="omrelp")    # Load the RELP module
+
+      # Log Rsyslog internal messages to a specific file
+      *.info;mail.none;authpriv.none;cron.none                /var/log/redis/rsyslog.log
+      *.debug                                                 /var/log/redis/rsyslog-debug.log
+
+      # Include default rules for some basic logging
+      *.*;auth,authpriv.none          -/var/log/syslog
+      auth,authpriv.*                 /var/log/auth.log
+      *.*                             /var/log/messages
+
+      # Log Redis messages
+      *.*                        /var/log/redis/redis.log
+
+      # Set up the RELP output module
+      action(type="omrelp" target="rsyslog.gic-asenhoradosaneis" port="514")

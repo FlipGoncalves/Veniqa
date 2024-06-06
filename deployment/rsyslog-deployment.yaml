@@ -1,3 +1,4 @@
+# Create Deployment for Rsyslog
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -23,14 +24,15 @@ spec:
           - containerPort: 514
             protocol: TCP
         volumeMounts:
-            - name: config-volume
-              mountPath: /etc/rsyslog.conf
-              subPath: rsyslog.conf
+          - name: config-volume
+            mountPath: /etc/rsyslog.conf
+            subPath: rsyslog.conf
       volumes:
         - name: config-volume
           configMap:
             name: rsyslog-config
 
+# Create Service for Rsyslog
 ---
 apiVersion: v1
 kind: Service
@@ -50,6 +52,7 @@ spec:
     port: 514
     targetPort: 514
 
+# Create ConfigMap for Rsyslog
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -64,6 +67,7 @@ data:
     input(type="imtcp" port="514")
     module(load="imuxsock") # provides support for local system logging (e.g. via logger command)
     module(load="imklog") # provides kernel logging support
+    module(load="imrelp")
 
     $ActionSendTCPRebindInterval (>= 4.5.1)
     $ActionSendUDPRebindInterval (>= 4.3.2)
@@ -71,8 +75,18 @@ data:
     # where to send the log
     *.* @rsyslog.gic-asenhoradosaneis:514 # Forward logs to the rsyslog service
 
-    local0.* /var/log/gic-asenhoradosaneis-mongodb.log
-    local1.* /var/log/gic-asenhoradosaneis-redis.log
+    # action(type="omfile" file="/var/log/gic-asenhoradosaneis-redis-$programname.log")
+
+    if $hostname contains 'redis' then {
+      action(type="omfile" file="/var/log/gic-asenhoradosaneis-redis.log")
+      stop
+    }
+
+    if $hostname contains 'mongo' then {
+      action(type="omfile" file="/var/log/gic-asenhoradosaneis-mongodb.log")
+      stop
+    }
+
     local2.* /var/log/gic-asenhoradosaneis-webclients.log
     local3.* /var/log/gic-asenhoradosaneis-shopping-server.log
     local4.* /var/log/gic-asenhoradosaneis-management-server.log
@@ -80,8 +94,7 @@ data:
     *.* /var/log/gic-asenhoradosaneis-syslog.log
     stop
 
-
-# Create Job for Rsyslog ip change
+# Create Job for Rsyslog IP Change
 ---
 apiVersion: batch/v1
 kind: Job

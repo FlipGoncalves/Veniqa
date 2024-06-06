@@ -4,6 +4,7 @@ FROM ubuntu:latest
 # Install rsyslog and necessary dependencies
 RUN apt-get update && \
     apt-get install -y rsyslog && \
+    apt-get install -y rsyslog-relp && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
