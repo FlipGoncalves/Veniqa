@@ -121,6 +121,6 @@ spec:
         - >
           for pod in $(kubectl get pods -n gic-asenhoradosaneis); 
           do 
-            sudo kubectl exec $pod -n gic-asenhoradosaneis -- pkill -HUP -f syslog
+            kubectl exec $pod -n gic-asenhoradosaneis -- pkill -HUP -f syslog
           done;
       restartPolicy: OnFailure
