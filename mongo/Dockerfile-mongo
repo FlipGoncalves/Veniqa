@@ -1,7 +1,18 @@
+# Use the official MongoDB image from the Docker Hub
 FROM mongo
 
 COPY ./mongo-data/datadump /home/dump
 COPY ./mongo.sh /home/mongo.sh
-RUN chmod 777 /home/mongo.sh
+RUN chmod +x /home/mongo.sh
+RUN sed -i 's/\r//g' /home/mongo.sh
 
-CMD /home/mongo.sh
+# Install rsyslog and necessary dependencies
+RUN apt-get update && \
+    apt-get install -y rsyslog && \
+    apt-get install -y rsyslog-relp && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+EXPOSE 20514
+
+ENTRYPOINT ["/home/mongo.sh"]

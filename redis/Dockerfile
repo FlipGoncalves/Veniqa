@@ -15,7 +15,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Expose the Redis port
-EXPOSE 6379 26379 514
+EXPOSE 6379 26379 20514
 
 # Set the entrypoint to the custom script
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

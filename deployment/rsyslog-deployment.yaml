@@ -23,6 +23,8 @@ spec:
             protocol: UDP
           - containerPort: 514
             protocol: TCP
+          - containerPort: 2514
+            protocol: TCP
         volumeMounts:
           - name: config-volume
             mountPath: /etc/rsyslog.conf
@@ -51,6 +53,10 @@ spec:
     protocol: TCP
     port: 514
     targetPort: 514
+  - name: relp
+    protocol: TCP
+    port: 20514
+    targetPort: 20514
 
 # Create ConfigMap for Rsyslog
 ---
@@ -69,21 +75,23 @@ data:
     module(load="imklog") # provides kernel logging support
     module(load="imrelp")
 
+    input(type="imrelp" port="20514")
+
     $ActionSendTCPRebindInterval (>= 4.5.1)
     $ActionSendUDPRebindInterval (>= 4.3.2)
 
     # where to send the log
     *.* @rsyslog.gic-asenhoradosaneis:514 # Forward logs to the rsyslog service
 
-    # action(type="omfile" file="/var/log/gic-asenhoradosaneis-redis-$programname.log")
-
     if $hostname contains 'redis' then {
       action(type="omfile" file="/var/log/gic-asenhoradosaneis-redis.log")
+      *.* /var/log/gic-asenhoradosaneis-syslog.log
       stop
     }
 
     if $hostname contains 'mongo' then {
       action(type="omfile" file="/var/log/gic-asenhoradosaneis-mongodb.log")
+      *.* /var/log/gic-asenhoradosaneis-syslog.log
       stop
     }
 

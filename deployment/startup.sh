@@ -64,13 +64,12 @@ cd /vagrant/nginx && docker build -f Dockerfile-webclient -t registry.deti/gic-a
 echo
 
 echo -- Secrets --
-chmod 777 /vagrant/deployment/secrets/secrets.sh
-/vagrant/deployment/secrets/secrets.sh
+chmod 777 /vagrant/deployment/secrets.sh
+/vagrant/deployment/secrets.sh
 echo
 
 echo -- Apply Kubectl --
 kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/storage/storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis

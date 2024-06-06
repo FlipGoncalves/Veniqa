@@ -14,7 +14,7 @@ kubectl create secret generic shopping-server-secret \
     -n gic-asenhoradosaneis
 
 kubectl create secret generic management-server-secret \
-    --from-literal=NODE_ENV=development \
+    --from-literal=NODE_ENV=production \
     --from-literal=VENIQA_ENV=local \
     --from-literal=VENIQA_MONGODB_DB=veniqa-prod-db \
     --from-literal=VENIQA_MONGODB_URL=mongodb://mongodb.gic-asenhoradosaneis:27017/veniqa-prod-db \

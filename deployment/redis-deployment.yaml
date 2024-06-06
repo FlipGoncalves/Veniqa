@@ -199,7 +199,7 @@ data:
       *.*                             /var/log/messages
 
       # Log Redis messages
-      *.*                        /var/log/redis/redis.log
+      *.*                         /var/log/redis/redis.log
 
       # Set up the RELP output module
-      action(type="omrelp" target="rsyslog.gic-asenhoradosaneis" port="514")
+      action(type="omrelp" target="rsyslog.gic-asenhoradosaneis" port="20514")

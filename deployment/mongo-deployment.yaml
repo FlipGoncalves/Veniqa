@@ -19,15 +19,14 @@ spec:
       containers:
       - name: mongodb
         image: registry.deti/gic-asenhoradosaneis/mongodb
-        command:
-        - mongod
-        - "--config"
-        - "/config/mongod.conf"
         volumeMounts:
         - name: mongodb-config
           mountPath: /config
         - name: mongodb-data
           mountPath: /data/db
+        - name: rsyslog-mongodb-config
+          mountPath: /etc/rsyslog.conf
+          subPath: rsyslog.conf
         ports:
         - name: mongodb
           containerPort: 27017
@@ -36,6 +35,9 @@ spec:
       - name: mongodb-config
         configMap:
           name: mongodb-config
+      - name: rsyslog-mongodb-config
+        configMap:
+          name: rsyslog-mongodb-config
   volumeClaimTemplates:
   - metadata:
       name: mongodb-data
@@ -46,6 +48,22 @@ spec:
       resources:
         requests:
           storage: 1Gi
+
+# Create Service for MongoDB
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: gic-asenhoradosaneis
+  labels:
+    app: mongodb
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
 
 # Create Job for Mongo Master
 ---
@@ -85,23 +103,7 @@ spec:
           "
       restartPolicy: OnFailure
 
-# Create Service for MongoDB
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongodb
-  namespace: gic-asenhoradosaneis
-  labels:
-    app: mongodb
-spec:
-  selector:
-    app: mongodb
-  ports:
-    - port: 27017
-      targetPort: 27017
-
-# Config Map
+# Create ConfigMap for MongoDB
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -119,3 +121,21 @@ data:
       bindIp: 0.0.0.0
     replication:
       replSetName: rs0
+
+# Create ConfigMap for Rsyslog Client to send Logs
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rsyslog-mongodb-config
+  namespace: gic-asenhoradosaneis
+data:
+  rsyslog.conf: |
+      module(load="imuxsock")  # provides support for local system logging (e.g., via logger command)
+      module(load="omrelp")    # Load the RELP module
+
+      # Log MongoDB messages
+      *.*                        /var/log/mongodb.log
+
+      # Set up the RELP output module
+      action(type="omrelp" target="rsyslog.gic-asenhoradosaneis" port="20514")
