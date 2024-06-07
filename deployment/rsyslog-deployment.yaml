@@ -29,10 +29,17 @@ spec:
           - name: config-volume
             mountPath: /etc/rsyslog.conf
             subPath: rsyslog.conf
+          - name: rsyslog-static
+            mountPath: "/var/log"
       volumes:
         - name: config-volume
           configMap:
             name: rsyslog-config
+        - name: rsyslog-static
+          persistentVolumeClaim:
+            claimName: rsyslog-static-pvc
+
+
 
 # Create Service for Rsyslog
 ---

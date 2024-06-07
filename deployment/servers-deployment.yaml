@@ -22,10 +22,10 @@ spec:
           - containerPort: 3000
         resources:
           requests:
-            cpu: "500m"
+            cpu: "50m"
             memory: "800Mi"
           limits:
-            cpu: "1000m"
+            cpu: "500m"
             memory: "1500Mi"
         env:
         - name: VENIQA_MONGODB_DB
@@ -109,10 +109,10 @@ spec:
           - containerPort: 3000
         resources:
           requests:
-            cpu: "500m"
+            cpu: "50m"
             memory: "800Mi"
           limits:
-            cpu: "1000m"
+            cpu: "500m"
             memory: "1500Mi"
         env:
         - name: VENIQA_MONGODB_DB

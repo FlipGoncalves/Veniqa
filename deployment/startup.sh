@@ -9,6 +9,7 @@ kubectl delete -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhorados
 kubectl delete -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
 kubectl delete -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
 kubectl delete -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
+kubectl delete -f /vagrant/deployment/rsyslog-storage.yaml -n gic-asenhoradosaneis
 echo
 
 while getopts d:h: flag
@@ -69,12 +70,13 @@ chmod 777 /vagrant/deployment/secrets.sh
 echo
 
 echo -- Apply Kubectl --
+kubectl apply -f /vagrant/deployment/rsyslog-storage.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
+sleep 20
 kubectl apply -f /vagrant/deployment/mongo-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/servers-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/redis-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/wordpress-deployment.yaml -n gic-asenhoradosaneis
 kubectl apply -f /vagrant/deployment/webclients-deployment.yaml -n gic-asenhoradosaneis
-kubectl apply -f /vagrant/deployment/rsyslog-deployment.yaml -n gic-asenhoradosaneis
 
 cd /vagrant/deployment
